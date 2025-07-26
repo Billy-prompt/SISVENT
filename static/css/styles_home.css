@@ -1,0 +1,199 @@
+:root {
+    --primary-color: #8B4513;
+    --secondary-color: #A0522D;
+    --accent-color: #B8860B;
+    --text-color-light: #F5F5DC;
+    --text-color-dark: #36454F;
+    --background-light: #FFF8DC;
+    --card-background: #FDF5E6;
+}
+
+/* Fondo general */
+body {
+    min-height: 100vh;
+    margin: 0;
+    background-image: url('/static/images/fondo_home.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-attachment: fixed;
+    font-family: Arial, sans-serif;
+    color: var(--text-color-dark);
+    overflow-x: hidden;
+}
+
+/* Para asegurar que el contenido tenga altura suficiente */
+main.container {
+    background-color: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    margin-top: 40px;
+    margin-bottom: 60px;
+}
+
+/* Navegación */
+.navbar {
+    background-color: var(--primary-color) !important;
+    border-bottom: 2px solid var(--accent-color);
+}
+
+.navbar-brand,
+.navbar-nav .nav-link {
+    color: var(--text-color-light) !important;
+    font-weight: 500;
+}
+
+.navbar-nav .nav-link:hover {
+    color: var(--accent-color) !important;
+}
+
+/* Encabezado */
+header {
+    background-color: rgba(160, 82, 45, 0.4); /* usa tu color óxido con transparencia */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    
+    color: var(--text-color-light);
+    padding: 3rem 0;
+    text-align: center;
+    border-bottom: 2px solid var(--accent-color);
+    border-radius: 0 0 12px 12px; /* bordes redondeados solo abajo */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+header h1 {
+    font-size: 2.8rem;
+    margin-bottom: 10px;
+}
+
+header p {
+    font-size: 1.2rem;
+}
+
+/* Contenedor principal */
+main.container {
+    background-color: rgba(255, 255, 255, 0.4); /* fondo más transparente */
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    margin-top: 40px;
+    margin-bottom: 40px;
+    
+    backdrop-filter: blur(10px);     /* ✅ desenfoque del fondo */
+    -webkit-backdrop-filter: blur(10px); /* para compatibilidad con Safari */
+    border: 1px solid rgba(255, 255, 255, 0.3); /* borde sutil para el efecto */
+}
+
+/* Tarjetas */
+.card {
+    border: none;
+    border-radius: 10px;
+    background-color: var(--card-background);
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    padding: 15px;
+    height: 100%;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 18px rgba(0, 0, 0, 0.1);
+}
+
+.card-title {
+    color: var(--primary-color);
+    font-size: 1.6rem;
+    margin-bottom: 10px;
+}
+
+.card-text {
+    color: var(--text-color-dark);
+    font-size: 1rem;
+    margin-bottom: 20px;
+}
+
+/* Botones */
+.btn {
+    padding: 10px 25px;
+    border-radius: 6px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+    width: 100%;
+}
+
+/* Productos */
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+    background-color: transparent;
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    color: var(--text-color-light);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Ventas */
+.btn-outline-success {
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+    background-color: transparent;
+}
+
+.btn-outline-success:hover {
+    background-color: var(--accent-color);
+    color: var(--text-color-light);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Proveedores */
+.btn-outline-warning {
+    color: var(--secondary-color);
+    border-color: var(--secondary-color);
+    background-color: transparent;
+}
+
+.btn-outline-warning:hover {
+    background-color: var(--secondary-color);
+    color: var(--text-color-light);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Centrar botones */
+.card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    text-align: center;
+}
+
+/* Pie de página */
+footer {
+    background-color: var(--primary-color);
+    color: var(--text-color-light);
+    text-align: center;
+    padding: 20px 0;
+    font-size: 0.9rem;
+}
+
+/* Estilos para móviles */
+@media (max-width: 768px) {
+    header h1 {
+        font-size: 2rem;
+    }
+
+    .card-title {
+        font-size: 1.3rem;
+    }
+
+    .btn {
+        font-size: 0.9rem;
+    }
+}

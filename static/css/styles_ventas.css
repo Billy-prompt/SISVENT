@@ -1,0 +1,241 @@
+:root {
+    --primary-color: #8B4513;
+    --secondary-color: #A0522D;
+    --accent-color: #B8860B;
+    --text-color-light: #F5F5DC;
+    --text-color-dark: #36454F;
+    --background-light: #FFF8DC;
+    --card-background: #FDF5E6;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-image: url('/static/images/fondo_home.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-attachment: fixed;
+    margin: 0;
+    padding: 20px;
+    color: var(--text-color-dark);
+}
+
+/* Encabezados */
+h1, h2 {
+    text-align: center;
+    color: var(--primary-color);
+    font-weight: bold;
+    margin-bottom: 30px;
+}
+
+/* Contenedor */
+.container,
+form {
+    max-width: 800px;
+    margin: auto;
+    background-color: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border-radius: 12px;
+    padding: 40px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+}
+
+/* Formularios */
+fieldset {
+    border: none;
+    margin-bottom: 20px;
+}
+
+legend {
+    font-weight: bold;
+    font-size: 1.2em;
+    margin-bottom: 15px;
+    color: var(--secondary-color);
+}
+
+label, label.form-label {
+    display: block;
+    margin-top: 15px;
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: var(--secondary-color);
+}
+
+/* Inputs */
+input[type="number"],
+input[type="date"],
+input.form-control,
+select,
+select.form-select {
+    width: 100%;
+    padding: 14px;
+    margin-top: 5px;
+    border-radius: 8px;
+    border: 2px solid var(--accent-color);
+    background-color: var(--card-background);
+    color: var(--text-color-dark);
+    font-size: 1.1rem;
+    height: auto;
+    box-sizing: border-box;
+}
+
+input[readonly] {
+    background-color: #eaeaea;
+}
+
+input:focus,
+select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 10px rgba(139, 69, 19, 0.3);
+}
+
+/* Botones generales */
+.btn,
+button {
+    display: inline-block;
+    padding: 14px 28px;
+    font-size: 1.05rem;
+    font-weight: bold;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+}
+
+/* Botones de acción */
+.btn-secondary,
+button[type="button"] {
+    background-color: var(--secondary-color);
+    color: var(--text-color-light);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn-secondary:hover,
+button[type="button"]:hover {
+    background-color: var(--primary-color);
+    transform: translateY(-1px);
+}
+
+/* Botón registrar */
+.btn-primary {
+    background-color: var(--accent-color);
+    color: var(--text-color-light);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-color);
+    transform: translateY(-1px);
+}
+
+/* Botón Home estilo outline */
+.btn-outline-secondary {
+    color: var(--secondary-color);
+    border: 2px solid var(--secondary-color);
+    background-color: transparent;
+}
+
+.btn-outline-secondary:hover {
+    background-color: var(--secondary-color);
+    color: var(--text-color-light);
+}
+
+/* Botón reset */
+button[type="reset"] {
+    background-color: #e74c3c;
+    color: white;
+}
+
+button[type="reset"]:hover {
+    background-color: #c0392b;
+}
+
+/* Botón eliminar item (canasta de basura) */
+.eliminar-item {
+    background-color: var(--accent-color);
+    color: var(--text-color-light);
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+.eliminar-item i {
+    margin-right: 6px;
+}
+
+.eliminar-item:hover {
+    background-color: var(--primary-color);
+}
+
+/* Tabla */
+#tabla-detalle {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: var(--card-background);
+}
+
+#tabla-detalle th,
+#tabla-detalle td {
+    padding: 12px;
+    text-align: left;
+    border: 1px solid #ccc;
+    color: var(--text-color-dark);
+}
+
+#tabla-detalle th {
+    background-color: #f1e5c0;
+}
+
+/* Total */
+#total_general {
+    font-weight: bold;
+    background-color: #f5f5dc;
+    color: var(--primary-color);
+    padding: 10px;
+    text-align: right;
+}
+
+/* Tarjetas Home */
+.card {
+    background-color: var(--card-background);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card-body {
+    padding: 1rem;
+    text-align: center;
+    color: var(--text-color-dark);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .btn,
+    button {
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .producto-item .col-md-2,
+    .producto-item .col-md-4 {
+        margin-bottom: 12px;
+    }
+
+    input,
+    select {
+        font-size: 1rem;
+        padding: 12px;
+    }
+}
+
+

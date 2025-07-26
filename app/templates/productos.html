@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Ingreso de Productos al Stock</title>
+    <link rel="stylesheet" href="/static/css/styles_productos.css">
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+    <h2 class="mb-4">Registrar Ingreso de Productos al Stock</h2>
+
+    <form id="formulario-productos" action="/registrar" method="POST">
+        <div class="mb-3">
+            <label for="fecha_ingreso" class="form-label">Fecha de Ingreso</label>
+            <input type="date" class="form-control" id="fecha_ingreso" name="fecha_ingreso" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="proveedor_select" class="form-label">Proveedor</label>
+            <select class="form-select" id="proveedor_select" name="proveedor_nombre" required>
+                <option value="" selected disabled>Seleccione un proveedor</option>
+                {% for proveedor in proveedores %}
+                    <option value="{{ proveedor.supplier_name }}">{{ proveedor.supplier_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <hr>
+        <h5>Productos</h5>
+
+        <div id="productos-container">
+            <div class="row mb-3 producto-item">
+                <div class="col-md-4">
+                    <label class="form-label">Nombre del Producto</label>
+                    <input type="text" name="productos" class="form-control" placeholder="Ej: Arroz" required>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Cantidad</label>
+                    <input type="number" name="cantidades" class="form-control" min="1" required>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Precio Compra</label>
+                    <input type="number" name="precios" class="form-control" step="0.01" min="0" required>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Precio Venta</label>
+                    <input type="number" name="precio_venta" class="form-control" step="0.01" min="0" required>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Categoría</label>
+                    <select class="form-select categoria-select">
+                        <option value="" disabled selected>Seleccione categoría</option>
+                        {% for categoria in categorias %}
+                            <option value="{{ categoria.category }}">{{ categoria.category }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="text" class="form-control mt-1 nueva-categoria" placeholder="Agregar nueva categoría">
+                </div>
+            </div>
+        </div>
+
+        <button type="button" class="btn btn-secondary mb-3" onclick="agregarProducto()">+ Añadir otro producto</button>
+        <br>
+        <button type="submit" class="btn btn-primary">Registrar Ingreso</button>
+        <a href="/home" class="btn btn-outline-secondary">Home</a>
+    </form>
+</div>
+
+<script>
+let categorias = [];
+
+// Cargar categorías desde el backend
+function cargarCategoriasEnSelect(selectElement) {
+    selectElement.innerHTML = '<option value="" disabled selected>Seleccione categoría</option>';
+    categorias.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat;
+        opt.textContent = cat;
+        selectElement.appendChild(opt);
+    });
+}
+
+function obtenerCategorias() {
+    fetch("/categorias")  // Ruta que debes tener en FastAPI
+        .then(response => response.json())
+        .then(data => {
+            categorias = data;
+            document.querySelectorAll('.categoria-select').forEach(sel => cargarCategoriasEnSelect(sel));
+        });
+}
+
+function agregarProducto() {
+    const container = document.getElementById('productos-container');
+    const nuevoProducto = container.firstElementChild.cloneNode(true);
+
+    nuevoProducto.querySelectorAll('input').forEach(input => input.value = '');
+    const selectCategoria = nuevoProducto.querySelector('.categoria-select');
+    const nuevaCategoriaInput = nuevoProducto.querySelector('.nueva-categoria');
+
+    cargarCategoriasEnSelect(selectCategoria);
+    nuevaCategoriaInput.value = '';
+
+    container.appendChild(nuevoProducto);
+}
+
+// Al enviar el formulario: reemplazar select + input por un solo campo hidden por producto
+document.getElementById("formulario-productos").addEventListener("submit", function(e) {
+    document.querySelectorAll(".producto-item").forEach(item => {
+        const select = item.querySelector(".categoria-select");
+        const inputNueva = item.querySelector(".nueva-categoria");
+
+        const categoriaFinal = inputNueva.value.trim() || select.value;
+
+        if (!categoriaFinal) {
+            e.preventDefault();
+            alert("Debe seleccionar o escribir una categoría en cada producto.");
+            return;
+        }
+
+        // Remover los campos visibles
+        select.remove();
+        inputNueva.remove();
+
+        // Insertar campo oculto con nombre "categorias[]"
+        const inputHidden = document.createElement("input");
+        inputHidden.type = "hidden";
+        inputHidden.name = "categorias";
+        inputHidden.value = categoriaFinal;
+        item.querySelector("div:last-child").appendChild(inputHidden);
+    });
+});
+
+// Fecha automática
+document.addEventListener("DOMContentLoaded", () => {
+    const fechaInput = document.getElementById("fecha_ingreso");
+    const hoy = new Date();
+    const yyyy = hoy.getFullYear();
+    const mm = String(hoy.getMonth() + 1).padStart(2, '0');
+    const dd = String(hoy.getDate()).padStart(2, '0');
+    fechaInput.value = `${yyyy}-${mm}-${dd}`;
+
+    obtenerCategorias();
+});
+
+// Validación de categorías duplicadas antes de enviar
+document.getElementById('formulario-ingreso').addEventListener('submit', function (e) {
+    const categorias = Array.from(document.querySelectorAll('.categoria-input')).map(input => input.value.trim().toLowerCase());
+
+    const duplicados = categorias.filter((cat, index, self) => self.indexOf(cat) !== index);
+
+    if (duplicados.length > 0) {
+        e.preventDefault();
+        alert("Error: Hay categorías duplicadas: " + duplicados.join(", "));
+    }
+});
+</script>
+</body>
+</html>
+

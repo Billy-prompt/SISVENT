@@ -1,0 +1,142 @@
+:root {
+    --primary-color: #8B4513;
+    --secondary-color: #A0522D;
+    --accent-color: #B8860B;
+    --text-color-light: #F5F5DC;
+    --text-color-dark: #36454F;
+    --background-light: #FFF8DC;
+    --card-background: #FDF5E6;
+}
+
+/* Fondo */
+body {
+    background-image: url('/static/images/fondo_home.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-attachment: fixed;
+    color: var(--text-color-dark);
+    font-family: Arial, sans-serif;
+}
+
+/* Contenedor principal */
+.container {
+    background-color: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border-radius: 12px;
+    padding: 40px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+}
+
+/* Encabezado */
+h2 {
+    color: var(--primary-color);
+    font-weight: bold;
+    font-size: 2rem;
+    margin-bottom: 30px;
+}
+
+/* Etiquetas de formulario */
+label.form-label {
+    color: var(--secondary-color);
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+/* Campos de entrada */
+input.form-control,
+select.form-select {
+    border: 2px solid var(--accent-color);
+    border-radius: 8px;
+    background-color: var(--card-background);
+    color: var(--text-color-dark);
+    padding: 14px;
+    font-size: 1.1rem;
+    height: auto;
+}
+
+/* Inputs enfocados */
+input.form-control:focus,
+select.form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 10px rgba(139, 69, 19, 0.3);
+}
+
+/* Botones generales */
+.btn {
+    padding: 14px 28px;
+    font-size: 1.05rem;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+/* Botón para añadir producto */
+.btn-secondary {
+    background-color: var(--secondary-color);
+    border: none;
+    color: var(--text-color-light);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn-secondary:hover {
+    background-color: var(--primary-color);
+    color: var(--text-color-light);
+    transform: translateY(-1px);
+}
+
+/* Botón registrar */
+.btn-primary {
+    background-color: var(--accent-color);
+    border: none;
+    color: var(--text-color-light);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-color);
+    color: var(--text-color-light);
+    transform: translateY(-1px);
+}
+
+/* Botón Home */
+.btn-outline-secondary {
+    color: var(--secondary-color);
+    border-color: var(--secondary-color);
+    background-color: transparent;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.btn-outline-secondary:hover {
+    background-color: var(--secondary-color);
+    color: var(--text-color-light);
+}
+
+/* Espaciado entre productos */
+.producto-item {
+    border-bottom: 1px dashed var(--accent-color);
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .btn {
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .producto-item .col-md-2,
+    .producto-item .col-md-4 {
+        margin-bottom: 12px;
+    }
+
+    input.form-control,
+    select.form-select {
+        font-size: 1rem;
+        padding: 12px;
+    }
+}
+
