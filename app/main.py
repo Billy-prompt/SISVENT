@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from app.models.product import Product
 from app.models.sale import Sale
 from app.models.saledetail import SaleDetail
-from app.routes import user,product,category, sale, shopping, suppliers, shopping, ingresos
+from app.routes import user,product,category, sale, shopping, suppliers, ingresos
 from app.routes.suppliers import router as suppliers_router
 from app.config.db import Base, engine, SessionLocal
 from fastapi.middleware.cors import CORSMiddleware
@@ -64,9 +64,7 @@ async def login_post(request: Request, username: str = Form(...), password: str 
             "error": "Credenciales incorrectas"
         })
     
-@app.get("/home", response_class=HTMLResponse)
-async def home(request: Request):
-    return templates.TemplateResponse("home.html", {"request": request, "title": "Home Page"})
+
 
 @app.post("/ventas/registrar/formulario")
 def crear_venta_formulario(
