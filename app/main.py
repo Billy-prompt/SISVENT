@@ -3,14 +3,13 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from datetime import datetime
-from app.config.db import get_db
 from sqlalchemy.orm import Session
 from app.models.product import Product
 from app.models.sale import Sale
 from app.models.saledetail import SaleDetail
 from app.routes import user,product,category, sale, shopping, suppliers, ingresos
 from app.routes.suppliers import router as suppliers_router
-from app.config.db import Base, engine, SessionLocal
+from app.config.db import Base, engine, SessionLocal, get_db
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -48,11 +47,11 @@ async def get_productos(request: Request):
     return templates.TemplateResponse("productos.html", {"request": request}) 
 
 
-@app.get("/login", response_class=HTMLResponse)
+@app.get("/", response_class=HTMLResponse)
 async def login_get(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
 
-@app.post("/login", response_class=HTMLResponse)
+@app.post("/", response_class=HTMLResponse)
 async def login_post(request: Request, username: str = Form(...), password: str = Form(...)):
     if username == "admin" and password == "1234":
         print("Inicio de sesión exitoso")
