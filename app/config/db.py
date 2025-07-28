@@ -12,11 +12,11 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 
 # O si estás localmente, construye la URL desde partes
 if not DATABASE_URL:
-    DB_USER = os.getenv("DB_USER")
-    DB_PASSWORD = os.getenv("DB_PASSWORD")
+    DB_USER = os.getenv("root")
+    DB_PASSWORD = os.getenv("")
     DB_HOST = os.getenv("localhost")
     DB_PORT = os.getenv("3306")
-    DB_NAME = os.getenv("mini_market")
+    DB_NAME = os.getenv("minimarket")
 
     DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
