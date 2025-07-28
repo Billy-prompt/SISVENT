@@ -4,12 +4,12 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from datetime import datetime
 from sqlalchemy.orm import Session
-from app.models.product import Product
-from app.models.sale import Sale
-from app.models.saledetail import SaleDetail
-from app.routes import user,product,category, sale, shopping, suppliers, ingresos
-from app.routes.suppliers import router as suppliers_router
-from app.config.db import Base, engine, SessionLocal, get_db
+from .models.product import Product
+from .models.sale import Sale
+from .models.saledetail import SaleDetail
+from .routes import user,product,category, sale, shopping, suppliers, ingresos
+from .routes.suppliers import router as suppliers_router
+from .config.db import Base, engine, SessionLocal, get_db
 from fastapi.middleware.cors import CORSMiddleware
 
 
