@@ -13,12 +13,13 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 # O si estás localmente, construye la URL desde partes
 if not DATABASE_URL:
     DB_USER = os.getenv("DB_USER")
-    DB_PASSWORD = os.getenv("DB_PASSWORD")
+    DB_PASSWORD = os.getenv("DB_PASSWORD", "")
     DB_HOST = os.getenv("DB_HOST")
     DB_PORT = os.getenv("DB_PORT")
     DB_NAME = os.getenv("DB_NAME")
 
-    if not all([DB_USER, DB_PASSWORD is not None, DB_HOST, DB_PORT, DB_NAME]):
+    # Validar que estén todos los necesarios (excepto contraseña)
+    if not all([DB_USER, DB_HOST, DB_PORT, DB_NAME]):
         raise ValueError("Faltan variables de entorno necesarias.")
 
     DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
@@ -43,3 +44,4 @@ def get_db():
         yield db
     finally:
         db.close()
+
