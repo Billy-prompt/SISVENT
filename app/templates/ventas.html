@@ -6,51 +6,50 @@
     <title>Registro de Venta</title>
     <link rel="stylesheet" href="/static/css/styles_ventas.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <div class="col-md-4 mb-4">
-        <div class="card shadow-sm">
-                <div class="card-body">
-                <a href="/home" class="btn btn-outline-success">Home</a>
-            </div>
-        </div>
-    </div>
-
 </head>
 <body>
+
+<div class="col-md-4 mb-4">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <a href="/home" class="btn btn-outline-secondary">Home</a>
+        </div>
+    </div>
+</div>
 
 <h1>Registro de Nueva Venta</h1>
 
 <form action="/ventas/registrar/formulario" method="POST">
-
     <fieldset>
         <legend>Detalles de la Venta</legend>
 
         <label for="products">Producto:</label>
-        <select id="products" class="form-select">
-            <option value="" disabled selected>Seleccione un producto</option>
-            {% for product in products %}
-                <option value="{{ product.id_product }}" 
-                        data-precio="{{ product.sale_price }}" 
-                        data-stock="{{ product.stock }}"
-                        {% if product.stock == 0 %} disabled {% endif %}>
-                    {{ product.product }} - ${{ product.sale_price }} 
-                    {% if product.stock == 0 %}(Sin stock){% endif %}
-                </option>
-            {% endfor %}
-        </select>
+        <input type="text" id="products" class="form-control" placeholder="Escriba para buscar..." list="listaProductos">
+        <datalist id="listaProductos">
+        {% for product in products %}
+            <option value="{{ product.product }}" 
+                data-id="{{ product.id_product }}"
+                data-precio="{{ product.sale_price }}" 
+                data-stock="{{ product.stock }}">
+                {{ product.product }} - ${{ product.sale_price }} 
+                {% if product.stock == 0 %}(Sin stock){% endif %}
+            </option>
+        {% endfor %}
+        </datalist>
 
-        <label for="cantidad">Cantidad:</label>
-        <input type="number" id="quantity" name="cantidad" min="1" value="1" required><br><br>
+        <label for="quantity">Cantidad:</label>
+        <input type="number" id="quantity" name="cantidad" class="form-control" min="1" value="1" required>
 
-        <label for="precio">Precio Unitario:</label>
-        <input type="number" id="price" name="precio" step="0.01" readonly><br><br>
+        <label for="price">Precio Unitario:</label>
+        <input type="number" id="price" name="precio" class="form-control" step="0.01" readonly>
 
         <label for="total">Total:</label>
-        <input type="number" id="total" name="total" step="0.01" readonly><br><br>
+        <input type="number" id="total" name="total" class="form-control" step="0.01" readonly>
 
         <label for="fecha">Fecha de Venta:</label>
-        <input type="date" id="fecha" name="fecha" required><br><br>
+        <input type="date" id="fecha" name="fecha" class="form-control" required>
 
-        <button type="button" id="agregar-item">Agregar Producto</button>
+        <button type="button" id="agregar-item" class="btn btn-secondary mt-3">Agregar Producto</button>
 
         <table border="1" id="tabla-detalle" style="margin-top: 15px;">
             <thead>
@@ -66,12 +65,11 @@
         </table>
 
         <label for="total_general">Total General:</label>
-        <input type="number" id="total_general" name="total_general" step="0.01" readonly><br><br>
+        <input type="number" id="total_general" name="total_general" class="form-control" step="0.01" readonly>
     </fieldset>
 
-    <button type="submit">Registrar Venta</button>
-    <button type="reset">Limpiar Formulario</button>
-
+    <button type="submit" class="btn btn-primary">Registrar Venta</button>
+    <button type="reset" class="btn btn-danger">Limpiar Formulario</button>
 </form>
 
 <!-- Validar que haya al menos un producto antes de enviar -->
@@ -79,31 +77,18 @@
 document.addEventListener("DOMContentLoaded", () => {
     const formulario = document.querySelector("form");
     formulario.addEventListener("submit", (event) => {
-        const filas = document.querySelectorAll("#tabla-detalle tbody tr");
-        if (filas.length === 0) {
+        if (document.querySelectorAll("#tabla-detalle tbody tr").length === 0) {
             alert("Debe agregar al menos un producto a la venta.");
             event.preventDefault();
         }
     });
-});
-</script>
 
-<!-- Fecha automática -->
-<script>
-window.addEventListener("DOMContentLoaded", () => {
+    // Fecha automática
     const fechaInput = document.getElementById("fecha");
     const hoy = new Date();
-    const yyyy = hoy.getFullYear();
-    const mm = String(hoy.getMonth() + 1).padStart(2, '0');
-    const dd = String(hoy.getDate()).padStart(2, '0');
-    fechaInput.value = `${yyyy}-${mm}-${dd}`;
-});
-</script>
+    fechaInput.value = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`;
 
-<!-- Lógica de agregar productos -->
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-    const productoSelect = document.getElementById("products");
+    const productoInput = document.getElementById("products");
     const cantidadInput = document.getElementById("quantity");
     const precioInput = document.getElementById("price");
     const totalInput = document.getElementById("total");
@@ -112,32 +97,34 @@ document.addEventListener("DOMContentLoaded", () => {
     const totalGeneralInput = document.getElementById("total_general");
 
     function actualizarPrecioYTotal() {
-        const selectedOption = productoSelect.options[productoSelect.selectedIndex];
+        const selectedOption = document.querySelector(`#listaProductos option[value="${productoInput.value}"]`);
+        if (!selectedOption) return;
         const precio = parseFloat(selectedOption.dataset.precio || 0);
         const cantidad = parseInt(cantidadInput.value) || 0;
-        const total = precio * cantidad;
-
         precioInput.value = precio.toFixed(2);
-        totalInput.value = total.toFixed(2);
+        totalInput.value = (precio * cantidad).toFixed(2);
     }
 
-    productoSelect.addEventListener("change", actualizarPrecioYTotal);
+    productoInput.addEventListener("change", actualizarPrecioYTotal);
     cantidadInput.addEventListener("input", actualizarPrecioYTotal);
 
     agregarBtn.addEventListener("click", () => {
-        const selectedOption = productoSelect.options[productoSelect.selectedIndex];
-        const nombreProducto = selectedOption.textContent.split(" - ")[0];
-        const idProducto = selectedOption.value;
+        const selectedOption = document.querySelector(`#listaProductos option[value="${productoInput.value}"]`);
+        if (!selectedOption) {
+            alert("Seleccione un producto válido.");
+            return;
+        }
+        const nombreProducto = productoInput.value;
+        const idProducto = selectedOption.dataset.id;
         const precio = parseFloat(precioInput.value);
         const cantidad = parseInt(cantidadInput.value);
         const stock = parseInt(selectedOption.dataset.stock || 0);
         const subtotal = precio * cantidad;
 
-        if (!idProducto || cantidad <= 0 || isNaN(precio)) {
-            alert("Seleccione un producto válido y una cantidad mayor a 0.");
+        if (cantidad <= 0 || isNaN(precio)) {
+            alert("Ingrese una cantidad válida.");
             return;
         }
-
         if (cantidad > stock) {
             alert(`No hay suficiente stock para este producto. Stock disponible: ${stock}`);
             return;
@@ -149,28 +136,21 @@ document.addEventListener("DOMContentLoaded", () => {
             <td>${cantidad} <input type="hidden" name="quantity" value="${cantidad}"></td>
             <td>$${precio.toFixed(2)}</td>
             <td>$${subtotal.toFixed(2)}</td>
-            <td><button type="button" class="eliminar-item" onclick="eliminarFila(this)">
-            <i class="fas fa-trash-alt"></i> Eliminar
-            </button></td>
+            <td><button type="button" class="eliminar-item"><i class="fas fa-trash-alt"></i> Eliminar</button></td>
         `;
 
         fila.querySelector(".eliminar-item").addEventListener("click", () => {
-            const subtotalStr = fila.children[3].textContent.replace("$", "");
-            const subtotal = parseFloat(subtotalStr) || 0;
-            const totalAnterior = parseFloat(totalGeneralInput.value) || 0;
-            totalGeneralInput.value = (totalAnterior - subtotal).toFixed(2);
+            totalGeneralInput.value = (parseFloat(totalGeneralInput.value || 0) - subtotal).toFixed(2);
             fila.remove();
         });
 
         tablaDetalle.appendChild(fila);
-
-        const totalAnterior = parseFloat(totalGeneralInput.value) || 0;
-        totalGeneralInput.value = (totalAnterior + subtotal).toFixed(2);
+        totalGeneralInput.value = (parseFloat(totalGeneralInput.value || 0) + subtotal).toFixed(2);
 
         cantidadInput.value = "1";
         precioInput.value = "";
         totalInput.value = "";
-        productoSelect.selectedIndex = 0;
+        productoInput.value = "";
     });
 });
 </script>

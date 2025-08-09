@@ -27,8 +27,10 @@
 
         <h2>Consultar Proveedor</h2>
         <form id="searchSupplierForm">
-            <label for="searchName">Nombre del Proveedor a Consultar:</label>
-            <input type="text" id="searchName" name="searchName" placeholder="Ej: Distribuciones ABC" required>
+            <label for="supplierName">Nombre del Proveedor:</label>
+            <input list="supplierList" id="supplierName" name="supplierName" required>
+            <datalist id="supplierList"></datalist>
+
             <button type="submit">Consultar Proveedor</button>
             <button id="editButton" style="margin-top: 10px;">Modificar</button>
         </form>
@@ -243,5 +245,36 @@
             });
         });
     </script>
+    <script>
+    function setupAutocomplete(inputId, datalistId) {
+        const input = document.getElementById(inputId);
+        const datalist = document.getElementById(datalistId);
+
+        input.addEventListener("input", () => {
+            const term = input.value.trim();
+            if (term.length < 1) {
+                datalist.innerHTML = "";
+                return;
+            }
+            fetch(`/supplier/autocomplete?q=${encodeURIComponent(term)}`)
+                .then(res => res.json())
+                .then(data => {
+                    datalist.innerHTML = "";
+                    data.forEach(item => {
+                        const option = document.createElement("option");
+                        option.value = item.name;
+                        datalist.appendChild(option);
+                    });
+                })
+                .catch(err => console.error("Error en autocompletado:", err));
+        });
+    }
+
+    // Inicializar autocompletado en ambos campos
+    window.addEventListener("DOMContentLoaded", () => {
+        setupAutocomplete("supplierName", "supplierList"); // alta
+        setupAutocomplete("searchName", "searchList");     // consulta
+    });
+</script>
 </body>
 </html>
