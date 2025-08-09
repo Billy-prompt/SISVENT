@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Inventario</title>
+    <link rel="stylesheet" href="/static/css/styles_proveedor.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Sistema de Gestión de Inventario</h1>
+
+        <h2>Inventario Actual</h2>
+        <p>Consulta y modifica las cantidades de productos registrados.</p>
+
+        <table id="inventoryTable" class="styled-table">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Categoría</th>
+                    <th>Cantidad</th>
+                    <th>Modificar Cantidad</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Se llenará dinámicamente -->
+            </tbody>
+        </table>
+
+        <div style="margin-top: 30px;">
+            <a href="/formulario" class="btn-volver-home">Inventario</a>
+        </div>
+    </div>
+
+    <script>
+        const inventoryTableBody = document.querySelector("#inventoryTable tbody");
+
+        // Cargar inventario
+        function loadInventory() {
+            fetch("/inventory/list")
+                .then(res => res.json())
+                .then(data => {
+                    inventoryTableBody.innerHTML = "";
+                    data.forEach(item => {
+                        const row = document.createElement("tr");
+
+                        row.innerHTML = `
+                            <td>${item.name}</td>
+                            <td>${item.category}</td>
+                            <td>${item.quantity}</td>
+                            <td>
+                                <input type="number" min="0" value="${item.quantity}" id="qty-${item.id}" class="input-small">
+                                <button class="btn-accion" onclick="updateQuantity(${item.id})">Actualizar</button>
+                            </td>
+                        `;
+
+                        inventoryTableBody.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error("Error al cargar inventario:", error);
+                });
+        }
+
+        // Actualizar cantidad
+        function updateQuantity(productId) {
+            const newQuantity = document.getElementById(`qty-${productId}`).value;
+
+            fetch(`/inventory/update/${productId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ quantity: parseInt(newQuantity) })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Cantidad actualizada correctamente.");
+                    loadInventory();
+                } else {
+                    alert("Error al actualizar cantidad.");
+                }
+            })
+            .catch(error => {
+                console.error("Error al actualizar:", error);
+            });
+        }
+
+        // Iniciar carga
+        window.addEventListener("DOMContentLoaded", loadInventory);
+    </script>
+</body>
+</html>
+

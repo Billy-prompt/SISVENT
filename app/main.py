@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from .models.product import Product
 from .models.sale import Sale
 from .models.saledetail import SaleDetail
-from .routes import user,product,category, sale, shopping, suppliers, ingresos
+from .routes import user,product,category, sale, shopping, suppliers, ingresos, inventario
 from .routes.suppliers import router as suppliers_router
 from .config.db import Base, engine, SessionLocal, get_db
 from fastapi.middleware.cors import CORSMiddleware
@@ -126,6 +126,7 @@ app.include_router(shopping.router)
 app.include_router(suppliers.router)
 app.include_router(ingresos.router)
 app.include_router(suppliers_router)
+app.include_router(inventario.router)
 
 import os
 import uvicorn
