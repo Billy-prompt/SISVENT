@@ -89,7 +89,6 @@ select:focus {
 
 /* Botones generales */
 button, .btn-volver-home {
-    padding: 14px 28px;
     font-size: 1.05rem;
     font-weight: bold;
     letter-spacing: 0.5px;
