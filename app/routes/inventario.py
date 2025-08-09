@@ -42,3 +42,13 @@ def actualizar_cantidad(product_id: int, data: dict, db: Session = Depends(get_d
     
     return {"success": False, "error": "Cantidad no válida"}
 
+@router.delete("/inventory/delete/{product_id}")
+def delete_product(product_id: int, db: Session = Depends(get_db)):
+    product = db.query(Product).filter(Product.id_product == product_id).first()
+    if not product:
+        return {"success": False, "message": "Producto no encontrado"}
+    
+    db.delete(product)
+    db.commit()
+    return {"success": True}
+

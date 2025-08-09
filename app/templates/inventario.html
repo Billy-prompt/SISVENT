@@ -11,7 +11,7 @@
         <h1>Sistema de Gestión de Inventario</h1>
 
         <h2>Inventario Actual</h2>
-        <p>Consulta y modifica las cantidades de productos registrados.</p>
+        <p>Consulta, modifica o elimina productos registrados.</p>
 
         <table id="inventoryTable" class="styled-table">
             <thead>
@@ -20,6 +20,7 @@
                     <th>Categoría</th>
                     <th>Cantidad</th>
                     <th>Modificar Cantidad</th>
+                    <th>Eliminar</th>
                 </tr>
             </thead>
             <tbody>
@@ -51,6 +52,9 @@
                             <td>
                                 <input type="number" min="0" value="${item.quantity}" id="qty-${item.id}" class="input-small">
                                 <button class="btn-accion" onclick="updateQuantity(${item.id})">Actualizar</button>
+                            </td>
+                            <td>
+                                <button class="btn-eliminar" onclick="deleteProduct(${item.id})">🗑 Eliminar</button>
                             </td>
                         `;
 
@@ -85,9 +89,33 @@
             });
         }
 
+        // Eliminar producto
+        function deleteProduct(productId) {
+            if (!confirm("¿Seguro que quieres eliminar este producto del inventario?")) {
+                return;
+            }
+
+            fetch(`/inventory/delete/${productId}`, {
+                method: "DELETE"
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Producto eliminado correctamente.");
+                    loadInventory();
+                } else {
+                    alert("Error al eliminar producto.");
+                }
+            })
+            .catch(error => {
+                console.error("Error al eliminar producto:", error);
+            });
+        }
+
         // Iniciar carga
         window.addEventListener("DOMContentLoaded", loadInventory);
     </script>
 </body>
 </html>
+
 
