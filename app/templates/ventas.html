@@ -9,14 +9,6 @@
 </head>
 <body>
 
-<div class="col-md-4 mb-4">
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <a href="/home" class="btn btn-outline-secondary">Home</a>
-        </div>
-    </div>
-</div>
-
 <h1>Registro de Nueva Venta</h1>
 
 <form action="/ventas/registrar/formulario" method="POST">
@@ -48,8 +40,10 @@
 
         <label for="fecha">Fecha de Venta:</label>
         <input type="date" id="fecha" name="fecha" class="form-control" required>
-
+        <br></br>
         <button type="button" id="agregar-item" class="btn btn-secondary mt-3">Agregar Producto</button>
+        
+        <a href="/home" class="btn btn-secondary mt-3">Home 🏠</a>
 
         <table border="1" id="tabla-detalle" style="margin-top: 15px;">
             <thead>

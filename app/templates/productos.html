@@ -15,7 +15,6 @@
             <label for="fecha_ingreso" class="form-label">Fecha de Ingreso</label>
             <input type="date" class="form-control" id="fecha_ingreso" name="fecha_ingreso" required>
         </div>
-
         <div class="mb-3">
             <label for="proveedor_select" class="form-label">Proveedor</label>
             <select class="form-select" id="proveedor_select" name="proveedor_nombre" required>
@@ -41,7 +40,7 @@
                 </div>
                 <div class="col-md-2">
                     <label class="form-label">Precio Compra</label>
-                    <input type="number" name="precios" class="form-control" step="0.01" min="0" required>
+                    <input type="number" name="precios" class="form-control precio-compra" step="0.01" min="0" required>
                 </div>
                 <div class="col-md-2">
                     <label class="form-label">Precio Venta</label>
@@ -62,8 +61,9 @@
 
         <button type="button" class="btn btn-secondary mb-3" onclick="agregarProducto()">+ Añadir otro producto</button>
         <br>
+        <hr>
         <button type="submit" class="btn btn-primary">Registrar Ingreso</button>
-        <a href="/home" class="btn btn-outline-secondary">Home</a>
+        <a href="/home" class="btn btn-outline-secondary">Home 🏠</a>
         <a href="/inventario" class="btn btn-primary">Gestión de Inventario</a>
     </form>
 </div>
@@ -83,7 +83,7 @@ function cargarCategoriasEnSelect(selectElement) {
 }
 
 function obtenerCategorias() {
-    fetch("/categorias")  // Ruta que debes tener en FastAPI
+    fetch("/categorias")
         .then(response => response.json())
         .then(data => {
             categorias = data;
@@ -105,7 +105,7 @@ function agregarProducto() {
     container.appendChild(nuevoProducto);
 }
 
-// Al enviar el formulario: reemplazar select + input por un solo campo hidden por producto
+// Validación de categorías
 document.getElementById("formulario-productos").addEventListener("submit", function(e) {
     document.querySelectorAll(".producto-item").forEach(item => {
         const select = item.querySelector(".categoria-select");
@@ -119,11 +119,9 @@ document.getElementById("formulario-productos").addEventListener("submit", funct
             return;
         }
 
-        // Remover los campos visibles
         select.remove();
         inputNueva.remove();
 
-        // Insertar campo oculto con nombre "categorias[]"
         const inputHidden = document.createElement("input");
         inputHidden.type = "hidden";
         inputHidden.name = "categorias";
@@ -144,18 +142,40 @@ document.addEventListener("DOMContentLoaded", () => {
     obtenerCategorias();
 });
 
-// Validación de categorías duplicadas antes de enviar
-document.getElementById('formulario-ingreso').addEventListener('submit', function (e) {
-    const categorias = Array.from(document.querySelectorAll('.categoria-input')).map(input => input.value.trim().toLowerCase());
+// Actualizar totales por producto
+function actualizarTotalesProducto(productoItem) {
+    const precioInput = productoItem.querySelector(".precio-compra");
+    const cantidadInput = productoItem.querySelector("[name='cantidades']");
 
-    const duplicados = categorias.filter((cat, index, self) => self.indexOf(cat) !== index);
+    let precio = parseFloat(precioInput.value) || 0;
+    let cantidad = parseInt(cantidadInput.value) || 0;
+    let total = precio * cantidad;
 
-    if (duplicados.length > 0) {
-        e.preventDefault();
-        alert("Error: Hay categorías duplicadas: " + duplicados.join(", "));
+    actualizarResumenGeneral();
+}
+
+document.addEventListener("input", function (e) {
+    if (e.target.classList.contains("precio-compra") || e.target.name === "cantidades") {
+        const productoItem = e.target.closest(".producto-item");
+        actualizarTotalesProducto(productoItem);
     }
 });
+
+// Actualizar resumen general
+function actualizarResumenGeneral() {
+    let totalNeto = 0;
+
+    document.querySelectorAll(".producto-item").forEach(item => {
+        const precio = parseFloat(item.querySelector(".precio-compra").value) || 0;
+        const cantidad = parseInt(item.querySelector("[name='cantidades']").value) || 0;
+        totalNeto += precio * cantidad;
+    });
+
+    document.getElementById("total-neto").textContent = totalNeto.toFixed(2);
+    document.getElementById("total-final").textContent = totalNeto.toFixed(2);
+}
 </script>
 </body>
 </html>
+
 

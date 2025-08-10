@@ -13,22 +13,21 @@
         <h2>Agregar Nuevo Proveedor</h2>
         <form id="addSupplierForm" action="/ingresos/supplier/create" method="POST">
             <label for="supplierName">Nombre del Proveedor:</label>
-            <input list="supplierList" id="supplierName" name="supplierName" required>
+            <input list="supplierList" id="supplierName" placeholder="Escriba para buscar..." name="supplierName" required>
             <datalist id="supplierList"></datalist>
 
             <label for="supplierPhone">Teléfono:</label>
-            <input type="tel" id="supplierPhone" name="supplierPhone">
+            <input type="tel" id="supplierPhone" placeholder="Opcional" name="supplierPhone">
 
             <button type="submit">Agregar Proveedor</button>
-            <div style="margin-top: 30px;">
-                <a href="/home" class="btn-volver-home">Home</a>
-            </div>
+        
+            <a href="/home" class="btn-volver-home">Home 🏠</a>
         </form>
 
         <h2>Consultar Proveedor</h2>
         <form id="searchSupplierForm">
             <label for="supplierName">Nombre del Proveedor:</label>
-            <input list="supplierList" id="supplierName" name="supplierName" required>
+            <input list="supplierList" id="supplierName" placeholder="Escriba para buscar..." name="supplierName" required>
             <datalist id="supplierList"></datalist>
 
             <button type="submit">Consultar Proveedor</button>
