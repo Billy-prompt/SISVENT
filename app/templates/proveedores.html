@@ -319,8 +319,8 @@
             if (!enlace) return;
             const filename = decodeURIComponent(enlace.getAttribute('href').split('/').pop());
             const btn = document.createElement('button');
-            btn.textContent = 'Eliminar';
-            btn.style.marginLeft = '10px';
+            btn.textContent = '🗑️';
+            btn.style.marginLeft = '5px';
             btn.addEventListener('click', () => {
                 if (!confirm(`¿Seguro que deseas eliminar "${filename}"?`)) return;
                 fetch(`/supplier/delete-file/${encodeURIComponent(supplierName)}/${encodeURIComponent(filename)}`, {
