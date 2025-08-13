@@ -1,37 +1,38 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gestión de Proveedores</title>
-    <link rel="stylesheet" href="/static/css/styles_proveedor.css">
+    <link rel="stylesheet" href="/static/css/styles_proveedor.css" />
 </head>
 <body>
     <div class="container">
         <h1>Sistema de Gestión de Proveedores</h1>
 
+        <!-- ===================== AGREGAR ===================== -->
         <h2>Agregar Nuevo Proveedor</h2>
         <form id="addSupplierForm" action="/ingresos/supplier/create" method="POST">
-            <label for="supplierName">Nombre del Proveedor:</label>
-            <input list="supplierList" id="supplierName" placeholder="Escriba para buscar..." name="supplierName" required>
-            <datalist id="supplierList"></datalist>
+            <label for="addSupplierName">Nombre del Proveedor:</label>
+            <input list="addSupplierList" id="addSupplierName" placeholder="Escriba para buscar o registrar" name="supplierName" required />
+            <datalist id="addSupplierList"></datalist>
 
-            <label for="supplierPhone">Teléfono:</label>
-            <input type="tel" id="supplierPhone" placeholder="Opcional" name="supplierPhone">
+            <label for="addSupplierPhone">Teléfono:</label>
+            <input type="tel" id="addSupplierPhone" placeholder="Opcional" name="supplierPhone" />
 
             <button type="submit">Agregar Proveedor</button>
-        
             <a href="/home" class="btn-volver-home">Home 🏠</a>
         </form>
 
+        <!-- ===================== CONSULTAR ===================== -->
         <h2>Consultar Proveedor</h2>
         <form id="searchSupplierForm">
-            <label for="supplierName">Nombre del Proveedor:</label>
-            <input list="supplierList" id="supplierName" placeholder="Escriba para buscar..." name="supplierName" required>
-            <datalist id="supplierList"></datalist>
+            <label for="searchName">Nombre del Proveedor:</label>
+            <input list="searchList" id="searchName" placeholder="Escriba para buscar..." name="searchName" required />
+            <datalist id="searchList"></datalist>
 
             <button type="submit">Consultar Proveedor</button>
-            <button id="editButton" style="margin-top: 10px;">Modificar</button>
+            <button id="editButton" type="button" style="margin-top: 10px;">Modificar</button>
         </form>
 
         <div class="result-section">
@@ -44,7 +45,7 @@
                 <!-- Formulario para subir factura -->
                 <h4>Adjuntar Nueva Factura</h4>
                 <form id="uploadForm" enctype="multipart/form-data" method="POST">
-                    <input type="file" id="uploadFactura" name="factura" accept="application/pdf" required>
+                    <input type="file" id="uploadFactura" name="factura" accept="application/pdf" required />
                     <button type="submit">Subir Factura</button>
                     <p class="error-message" id="uploadError" style="display:none;">El archivo debe ser PDF y pesar menos de 3 MB.</p>
                 </form>
@@ -54,46 +55,53 @@
             </div>
         </div>
 
+        <!-- ===================== EDITAR ===================== -->
         <div id="editSupplierForm" style="display: none; margin-top: 20px;">
             <h4>Modificar Proveedor</h4>
             <form id="modifyForm">
                 <label for="editName">Nuevo Nombre:</label>
-                <input type="text" id="editName" name="editName" required>
+                <input type="text" id="editName" name="editName" required />
 
                 <label for="editPhone">Nuevo Teléfono:</label>
-                <input type="tel" id="editPhone" name="editPhone" required>
+                <input type="tel" id="editPhone" name="editPhone" required />
 
-                <input type="hidden" id="originalName" name="originalName">
+                <input type="hidden" id="originalName" name="originalName" />
                 <button type="submit">Guardar Cambios</button>
             </form>
         </div>
     </div>
+
     <script>
+        // ===================== AGREGAR =====================
         const addSupplierForm = document.getElementById('addSupplierForm');
-        const supplierNameInput = document.getElementById('supplierName');
-        const nameError = document.createElement("p");
-        nameError.classList.add("error-message");
-        nameError.style.display = "none";
-        supplierNameInput.insertAdjacentElement("afterend", nameError);
+        const addSupplierNameInput = document.getElementById('addSupplierName');
+        const nameError = document.createElement('p');
+        nameError.classList.add('error-message');
+        nameError.style.display = 'none';
+        addSupplierNameInput.insertAdjacentElement('afterend', nameError);
 
         addSupplierForm.addEventListener('submit', async function(event) {
             event.preventDefault();
+            const supplierName = addSupplierNameInput.value.trim();
+            if (!supplierName) return;
 
-            const supplierName = supplierNameInput.value.trim();
+            // Verificar existencia antes de crear
             const exists = await fetch(`/supplier/search?name=${encodeURIComponent(supplierName)}`)
                 .then(res => res.ok ? res.json() : { success: false })
                 .catch(() => ({ success: false }));
 
             if (exists && exists.success) {
                 nameError.textContent = `El proveedor "${supplierName}" ya existe.`;
-                nameError.style.display = "block";
+                nameError.style.display = 'block';
                 return;
             }
 
-            nameError.style.display = "none";
+            nameError.style.display = 'none';
+            // Enviar realmente el formulario (no dispara otro submit listener)
             addSupplierForm.submit();
         });
 
+        // ===================== CONSULTAR =====================
         const searchSupplierForm = document.getElementById('searchSupplierForm');
         const searchNameInput = document.getElementById('searchName');
         const consultationStatus = document.getElementById('consultationStatus');
@@ -104,8 +112,9 @@
 
         searchSupplierForm.addEventListener('submit', function(event) {
             event.preventDefault();
+            const supplierNameToSearch = searchNameInput.value.trim();
+            if (!supplierNameToSearch) return;
 
-            const supplierNameToSearch = searchNameInput.value;
             consultationStatus.textContent = 'Consultando...';
             supplierInfoDiv.style.display = 'none';
             attachedFilesList.innerHTML = '';
@@ -113,17 +122,17 @@
             fetch(`/supplier/search?name=${encodeURIComponent(supplierNameToSearch)}`)
                 .then(response => response.json())
                 .then(data => {
-                    if (data.success) {
-                        displaySupplierName.textContent = data.supplier.name;
-                        displaySupplierPhone.textContent = data.supplier.phone;
+                    if (data && data.success) {
+                        displaySupplierName.textContent = data.supplier.name ?? '';
+                        displaySupplierPhone.textContent = data.supplier.phone ?? '';
                         consultationStatus.textContent = '';
                         supplierInfoDiv.style.display = 'block';
 
-                        if (data.files && data.files.length > 0) {
+                        if (Array.isArray(data.files) && data.files.length > 0) {
                             data.files.forEach(file => {
-                                const listItem = document.createElement('li');
-                                listItem.innerHTML = `<a href="/supplier/files/${encodeURIComponent(data.supplier.name)}/${file.filename}" target="_blank">${file.originalName}</a>`;
-                                attachedFilesList.appendChild(listItem);
+                                const li = document.createElement('li');
+                                li.innerHTML = `<a href="/supplier/files/${encodeURIComponent(data.supplier.name)}/${encodeURIComponent(file.filename)}" target="_blank">${file.originalName}</a>`;
+                                attachedFilesList.appendChild(li);
                             });
                         } else {
                             attachedFilesList.innerHTML = '<li>No hay facturas adjuntas para este proveedor.</li>';
@@ -140,6 +149,7 @@
                 });
         });
 
+        // ===================== EDITAR =====================
         const editButton = document.getElementById('editButton');
         const editSupplierForm = document.getElementById('editSupplierForm');
         const editName = document.getElementById('editName');
@@ -148,6 +158,10 @@
         const modifyForm = document.getElementById('modifyForm');
 
         editButton.addEventListener('click', function () {
+            if (!displaySupplierName.textContent) {
+                alert('Primero consulta un proveedor.');
+                return;
+            }
             editName.value = displaySupplierName.textContent;
             editPhone.value = displaySupplierPhone.textContent;
             originalName.value = displaySupplierName.textContent;
@@ -159,43 +173,57 @@
 
             const payload = {
                 original_name: originalName.value,
-                new_name: editName.value,
-                new_phone: editPhone.value
+                new_name: editName.value.trim(),
+                new_phone: editPhone.value.trim()
             };
+
+            if (!payload.new_name) {
+                alert('El nombre no puede estar vacío.');
+                return;
+            }
 
             fetch('/supplier/update', {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             })
             .then(res => res.json())
             .then(data => {
-                if (data.success) {
-                    alert("Proveedor actualizado correctamente.");
-                    displaySupplierName.textContent = editName.value;
-                    displaySupplierPhone.textContent = editPhone.value;
+                if (data && data.success) {
+                    alert('Proveedor actualizado correctamente.');
+                    // Refrescar datos mostrados
+                    displaySupplierName.textContent = payload.new_name;
+                    displaySupplierPhone.textContent = payload.new_phone;
                     editSupplierForm.style.display = 'none';
+
+                    // Actualizar datalists si cambió el nombre
+                    if (payload.original_name !== payload.new_name) {
+                        [document.getElementById('addSupplierList'), document.getElementById('searchList')].forEach(dl => {
+                            if (!dl) return;
+                            [...dl.querySelectorAll('option')].forEach(opt => {
+                                if (opt.value === payload.original_name) opt.value = payload.new_name;
+                            });
+                        });
+                    }
                 } else {
-                    alert("Error al actualizar proveedor.");
+                    alert(data?.message || 'Error al actualizar proveedor.');
                 }
             })
             .catch(error => {
-                console.error("Error:", error);
-                alert("Ocurrió un error al actualizar.");
+                console.error('Error:', error);
+                alert('Ocurrió un error al actualizar.');
             });
         });
 
+        // ===================== SUBIR FACTURA =====================
         const uploadForm = document.getElementById('uploadForm');
         const uploadFactura = document.getElementById('uploadFactura');
         const uploadError = document.getElementById('uploadError');
 
         uploadForm.addEventListener('submit', function (event) {
             event.preventDefault();
-
             const file = uploadFactura.files[0];
-            const maxSize = 3 * 1024 * 1024;
+            const maxSize = 3 * 1024 * 1024; // 3 MB
 
             if (!file || file.size > maxSize || file.type !== 'application/pdf') {
                 uploadError.style.display = 'block';
@@ -203,11 +231,14 @@
             }
 
             uploadError.style.display = 'none';
-
             const formData = new FormData();
             formData.append('factura', file);
 
-            const supplierName = displaySupplierName.textContent;
+            const supplierName = displaySupplierName.textContent.trim();
+            if (!supplierName) {
+                alert('Primero consulta un proveedor.');
+                return;
+            }
 
             fetch(`/ingresos/supplier/upload/${encodeURIComponent(supplierName)}`, {
                 method: 'POST',
@@ -215,65 +246,117 @@
             })
             .then(res => res.json())
             .then(data => {
-                if (data.success) {
-                    alert("Factura subida correctamente.");
+                if (data && data.success) {
+                    alert('Factura subida correctamente.');
+                    // Re-consultar para refrescar la lista de archivos
                     searchSupplierForm.dispatchEvent(new Event('submit'));
                 } else {
-                    alert("Error al subir factura.");
+                    alert(data?.message || 'Error al subir factura.');
                 }
             })
             .catch(error => {
                 console.error('Error al subir factura:', error);
-                alert("Error al subir factura.");
+                alert('Error al subir factura.');
             });
         });
 
-        window.addEventListener("DOMContentLoaded", () => {
-            fetch("/supplier/list")
-            .then(res => res.json())
-            .then(proveedores => {
-                const datalist = document.getElementById("supplierList");
-                proveedores.forEach(p => {
-                const option = document.createElement("option");
-                option.value = p.name;
-                datalist.appendChild(option);
-                });
-            })
-            .catch(error => {
-            console.error("Error cargando lista de proveedores:", error);
-            });
-        });
-    </script>
-    <script>
-    function setupAutocomplete(inputId, datalistId) {
-        const input = document.getElementById(inputId);
-        const datalist = document.getElementById(datalistId);
+        // ===================== AUTOCOMPLETE =====================
+        function setupAutocomplete(inputId, datalistId) {
+            const input = document.getElementById(inputId);
+            const datalist = document.getElementById(datalistId);
+            if (!input || !datalist) return;
 
-        input.addEventListener("input", () => {
-            const term = input.value.trim();
-            if (term.length < 1) {
-                datalist.innerHTML = "";
-                return;
-            }
-            fetch(`/supplier/autocomplete?q=${encodeURIComponent(term)}`)
+            input.addEventListener('input', () => {
+                const term = input.value.trim();
+                if (term.length < 1) {
+                    datalist.innerHTML = '';
+                    return;
+                }
+                fetch(`/supplier/autocomplete?q=${encodeURIComponent(term)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        datalist.innerHTML = '';
+                        (data || []).forEach(item => {
+                            const option = document.createElement('option');
+                            option.value = item.name;
+                            datalist.appendChild(option);
+                        });
+                    })
+                    .catch(err => console.error('Error en autocompletado:', err));
+            });
+        }
+
+        // ===================== CARGA INICIAL =====================
+        window.addEventListener('DOMContentLoaded', () => {
+            // Inicializar autocompletado en ambos campos
+            setupAutocomplete('addSupplierName', 'addSupplierList');
+            setupAutocomplete('searchName', 'searchList');
+
+            // Precargar lista de proveedores en ambos datalists (opcional)
+            fetch('/supplier/list')
                 .then(res => res.json())
-                .then(data => {
-                    datalist.innerHTML = "";
-                    data.forEach(item => {
-                        const option = document.createElement("option");
-                        option.value = item.name;
-                        datalist.appendChild(option);
+                .then(proveedores => {
+                    const addDL = document.getElementById('addSupplierList');
+                    const searchDL = document.getElementById('searchList');
+                    [addDL, searchDL].forEach(dl => dl && (dl.innerHTML = ''));
+                    (proveedores || []).forEach(p => {
+                        const opt1 = document.createElement('option');
+                        opt1.value = p.name;
+                        const opt2 = document.createElement('option');
+                        opt2.value = p.name;
+                        addDL && addDL.appendChild(opt1);
+                        searchDL && searchDL.appendChild(opt2);
                     });
                 })
-                .catch(err => console.error("Error en autocompletado:", err));
+                .catch(error => {
+                    console.error('Error cargando lista de proveedores:', error);
+                });
+        });
+          // ===================== ELIMINAR FACTURA =====================
+    function agregarBotonesEliminar(supplierName) {
+        document.querySelectorAll('#attachedFiles li').forEach(li => {
+            const enlace = li.querySelector('a');
+            if (!enlace) return;
+            const filename = decodeURIComponent(enlace.getAttribute('href').split('/').pop());
+            const btn = document.createElement('button');
+            btn.textContent = 'Eliminar';
+            btn.style.marginLeft = '10px';
+            btn.addEventListener('click', () => {
+                if (!confirm(`¿Seguro que deseas eliminar "${filename}"?`)) return;
+                fetch(`/supplier/delete-file/${encodeURIComponent(supplierName)}/${encodeURIComponent(filename)}`, {
+                    method: 'DELETE'
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.success) {
+                        alert('Factura eliminada.');
+                        li.remove();
+                        if (!document.querySelector('#attachedFiles li')) {
+                            document.getElementById('attachedFiles').innerHTML = '<li>No hay facturas adjuntas para este proveedor.</li>';
+                        }
+                    } else {
+                        alert(data?.message || 'Error al eliminar factura.');
+                    }
+                })
+                .catch(err => {
+                    console.error('Error eliminando factura:', err);
+                    alert('Error al eliminar factura.');
+                });
+            });
+            li.appendChild(btn);
         });
     }
 
-    // Inicializar autocompletado en ambos campos
-    window.addEventListener("DOMContentLoaded", () => {
-        setupAutocomplete("supplierName", "supplierList"); // alta
-        setupAutocomplete("searchName", "searchList");     // consulta
+    // Interceptar la consulta para añadir botones
+    const originalSearchHandler = searchSupplierForm.onsubmit;
+    searchSupplierForm.addEventListener('submit', function(event) {
+        setTimeout(() => {
+            const supplierName = displaySupplierName.textContent.trim();
+            if (supplierName) {
+                agregarBotonesEliminar(supplierName);
+            }
+        }, 500);
     });
-</script>
+    </script>
 </body>
 </html>

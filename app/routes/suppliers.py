@@ -14,6 +14,7 @@ import shutil
 from uuid import uuid4
 from fastapi.staticfiles import StaticFiles
 from fastapi import FastAPI
+from urllib.parse import unquote
 
 UPLOAD_FOLDER = "app/uploaded_files"
 app = FastAPI()
@@ -55,7 +56,7 @@ def buscar_proveedor(name: str, db: Session = Depends(get_db)):
         },
         "files": files
     }  
-
+# Logica para mostrar factura PDF
 
 @router.get("/supplier/files/{supplier}/{filename}")
 def obtener_factura(supplier: str, filename: str):
@@ -63,6 +64,8 @@ def obtener_factura(supplier: str, filename: str):
     if not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="Archivo no encontrado")
     return FileResponse(file_path, media_type="application/pdf", filename=filename)
+
+
 
 # =========================
 # Crear proveedor

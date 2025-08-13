@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request, Form, APIRouter, Depends
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from datetime import datetime
@@ -11,6 +11,7 @@ from .routes import user,product,category, sale, shopping, suppliers, ingresos, 
 from .routes.suppliers import router as suppliers_router
 from .config.db import Base, engine, SessionLocal, get_db
 from fastapi.middleware.cors import CORSMiddleware
+from urllib.parse import unquote
 
 
 app = FastAPI()
@@ -104,6 +105,28 @@ def crear_venta_formulario(
     db.commit()
 
     return RedirectResponse(url="/ventas/crear", status_code=303)
+
+# Logica para eliminar factura PDF
+
+UPLOAD_FOLDER = "app/uploaded_files"
+
+@app.delete("/supplier/delete-file/{supplier}/{filename}")
+def delete_supplier_file(supplier: str, filename: str):
+    # Decodificar espacios y caracteres especiales (ej: %20 → espacio)
+    filename = unquote(filename)
+
+    # Ruta completa del archivo
+    file_path = os.path.join(UPLOAD_FOLDER, supplier, filename)
+
+    # Verificar si existe
+    if os.path.exists(file_path):
+        try:
+            os.remove(file_path)
+            return JSONResponse(content={"success": True, "message": "Factura eliminada correctamente."})
+        except Exception as e:
+            return JSONResponse(content={"success": False, "message": f"Error al eliminar: {str(e)}"}, status_code=500)
+    else:
+        return JSONResponse(content={"success": False, "message": "Archivo no encontrado."}, status_code=404)
 
 app.add_middleware(
     CORSMiddleware,
