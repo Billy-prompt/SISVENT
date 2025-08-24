@@ -7,46 +7,39 @@ from sqlalchemy.orm import Session
 from .models.product import Product
 from .models.sale import Sale
 from .models.saledetail import SaleDetail
-from .routes import user,product,category, sale, shopping, suppliers, ingresos, inventario, proveedor
+from .routes import user, product, category, sale, shopping, suppliers, ingresos, inventario, proveedor
 from .routes.suppliers import router as suppliers_router
-from .config.db import Base, engine, SessionLocal, get_db
+from .config.db import Base, engine, get_db
 from fastapi.middleware.cors import CORSMiddleware
 from urllib.parse import unquote
-
+import os
 
 app = FastAPI()
-
 router = APIRouter()
-
 templates = Jinja2Templates(directory="app/templates")
 
 # Montar carpeta static
-
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.mount("/supplier/files", StaticFiles(directory="app/uploaded_files"), name="supplier_files")
 
 # Configuración de la ruta para la página de inicio
-
 @app.get("/home", response_class=HTMLResponse)
 async def home(request: Request):
     return templates.TemplateResponse("home.html", {"request": request, "current_year": datetime.now().year, "title": "Home Page"})
 
 # Configuración de la ruta para la página de ventas
-
 @app.get("/ventas", response_class=HTMLResponse)
 async def get_ventas(request: Request):
     return templates.TemplateResponse("ventas.html", {"request": request})
 
 @app.get("/ventas/crear", response_class=HTMLResponse)
-def create_venta(request: Request):
-    db = SessionLocal()
+def create_venta(request: Request, db: Session = Depends(get_db)):
     products = db.query(Product).all() 
     return templates.TemplateResponse("ventas.html", {"request": request, "products": products})
 
 @app.get("/productos", response_class=HTMLResponse)
 async def get_productos(request: Request):
     return templates.TemplateResponse("productos.html", {"request": request}) 
-
 
 @app.get("/", response_class=HTMLResponse)
 async def login_get(request: Request):
@@ -63,8 +56,6 @@ async def login_post(request: Request, username: str = Form(...), password: str 
             "request": request,
             "error": "Credenciales incorrectas"
         })
-    
-
 
 @app.post("/ventas/registrar/formulario")
 def crear_venta_formulario(
@@ -107,7 +98,6 @@ def crear_venta_formulario(
     return RedirectResponse(url="/ventas/crear", status_code=303)
 
 # Logica para eliminar factura PDF
-
 UPLOAD_FOLDER = "app/uploaded_files"
 
 @app.delete("/supplier/delete-file/{supplier}/{filename}")
@@ -139,8 +129,7 @@ app.add_middleware(
 # Crear las tablas
 Base.metadata.create_all(bind=engine)
 
-#registrar rutas
-
+# Registrar rutas
 app.include_router(user.router)
 app.include_router(product.router)
 app.include_router(category.router)
@@ -152,7 +141,6 @@ app.include_router(suppliers_router)
 app.include_router(inventario.router)
 app.include_router(proveedor.router)
 
-import os
 import uvicorn
 
 if __name__ == "__main__":

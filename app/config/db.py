@@ -29,7 +29,7 @@ if not DATABASE_URL:
     raise ValueError("No se pudo definir DATABASE_URL. Verifica tus variables de entorno.")
 
 # Crear motor de conexión
-engine = create_engine(DATABASE_URL)
+engine = create_engine(DATABASE_URL, pool_size=5, max_overflow=0, pool_recycle=1800, pool_pre_ping=True)
 
 # Crear sesión
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
