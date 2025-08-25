@@ -29,18 +29,23 @@ def listar_inventario(db: Session = Depends(get_db)):
 
 # API para actualizar cantidad de un producto
 @router.put("/inventory/update/{product_id}")
-def actualizar_cantidad(product_id: int, data: dict, db: Session = Depends(get_db)):
-    producto = db.query(Product).filter(Product.id_product == product_id).first()
-    if not producto:
-        return {"success": False, "error": "Producto no encontrado"}
-    
-    nueva_cantidad = data.get("quantity")
-    if nueva_cantidad is not None:
-        producto.stock = nueva_cantidad
-        db.commit()
-        return {"success": True}
-    
-    return {"success": False, "error": "Cantidad no válida"}
+def update_quantity(product_id: int, data: dict, db: Session = Depends(get_db)):
+    product = db.query(Product).filter(Product.id_product == product_id).first()
+    if not product:
+        return {"success": False, "message": "Producto no encontrado"}
+
+    add_qty = data.get("add_quantity", 0)
+    if add_qty < 0:
+        return {"success": False, "message": "Cantidad no válida"}
+
+    # 👇 en vez de reemplazar, sumamos
+    product.stock += add_qty  
+
+    db.commit()
+    db.refresh(product)
+
+    return {"success": True, "new_quantity": product.stock}
+
 
 @router.delete("/inventory/delete/{product_id}")
 def delete_product(product_id: int, db: Session = Depends(get_db)):

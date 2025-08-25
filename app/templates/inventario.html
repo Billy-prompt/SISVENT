@@ -5,6 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Inventario</title>
     <link rel="stylesheet" href="/static/css/styles_inventario.css">
+    <style>
+        /* Estilo para la vista flotante */
+        #stockReminder {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 300px;
+            max-height: 300px;
+            overflow-y: auto;
+            background: #fff3cd;
+            border: 2px solid #ff9800;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 1000;
+        }
+        #stockReminder h3 {
+            margin-top: 0;
+            color: #d35400;
+            font-size: 16px;
+        }
+        #stockReminder ul {
+            padding-left: 20px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -28,66 +54,134 @@
             </tbody>
         </table>
 
+        <!-- Controles de paginación -->
+        <div id="paginationControls" style="margin-top:20px; text-align:center;"></div>
+
         <div style="margin-top: 30px;">
             <a href="/formulario" class="btn-volver-home">Inventario</a>
         </div>
     </div>
 
+    <!-- Vista flotante de recordatorio -->
+    <div id="stockReminder">
+        <h3>⚠ Productos con stock 0</h3>
+        <ul id="stockZeroList"></ul>
+    </div>
+
     <script>
         const inventoryTableBody = document.querySelector("#inventoryTable tbody");
+        const paginationControls = document.getElementById("paginationControls");
+        const stockReminder = document.getElementById("stockReminder");
+        const stockZeroList = document.getElementById("stockZeroList");
+
+        let allProducts = [];
+        let currentPage = 1;
+        const itemsPerPage = 15;
 
         // Cargar inventario
         function loadInventory() {
             fetch("/inventory/list")
                 .then(res => res.json())
                 .then(data => {
-                    inventoryTableBody.innerHTML = "";
-                    data.forEach(item => {
-                        const row = document.createElement("tr");
+                    // Orden alfabético
+                    allProducts = data.sort((a, b) => a.name.localeCompare(b.name));
 
-                        row.innerHTML = `
-                            <td>${item.name}</td>
-                            <td>${item.category}</td>
-                            <td>${item.quantity}</td>
-                            <td>
-                                <input type="number" min="0" value="${item.quantity}" id="qty-${item.id}" class="input-small">
-                                <button class="btn-accion" onclick="updateQuantity(${item.id})">Actualizar</button>
-                            </td>
-                            <td>
-                                <button class="btn-eliminar" onclick="deleteProduct(${item.id})">🗑</button>
-                            </td>
-                        `;
-
-                        inventoryTableBody.appendChild(row);
-                    });
+                    // Mostrar tabla y recordatorio
+                    renderTable();
+                    showStockZeroReminder();
                 })
                 .catch(error => {
                     console.error("Error al cargar inventario:", error);
                 });
         }
 
+        // Renderizar tabla con paginación
+        function renderTable() {
+            inventoryTableBody.innerHTML = "";
+
+            let start = (currentPage - 1) * itemsPerPage;
+            let end = start + itemsPerPage;
+            let pageItems = allProducts.slice(start, end);
+
+            pageItems.forEach(item => {
+                const row = document.createElement("tr");
+
+                row.innerHTML = `
+                    <td>${item.name}</td>
+                    <td>${item.category}</td>
+                    <td>${item.quantity}</td>
+                    <td>
+                        <input type="number" min="0" value="" id="qty-${item.id}" class="input-small">
+                        <button class="btn-accion" onclick="updateQuantity(${item.id})">Actualizar</button>
+                    </td>
+                    <td>
+                        <button class="btn-eliminar" onclick="deleteProduct(${item.id})">🗑</button>
+                    </td>
+                `;
+
+                inventoryTableBody.appendChild(row);
+            });
+
+            renderPaginationControls();
+        }
+
+        // Mostrar controles de paginación
+        function renderPaginationControls() {
+            let totalPages = Math.ceil(allProducts.length / itemsPerPage);
+            paginationControls.innerHTML = "";
+
+            for (let i = 1; i <= totalPages; i++) {
+                let btn = document.createElement("button");
+                btn.innerText = i;
+                btn.className = i === currentPage ? "active-page" : "";
+                btn.onclick = () => {
+                    currentPage = i;
+                    renderTable();
+                };
+                paginationControls.appendChild(btn);
+            }
+        }
+
+        // Mostrar productos con stock 0 en recordatorio flotante
+        function showStockZeroReminder() {
+            stockZeroList.innerHTML = "";
+            const zeroStockItems = allProducts.filter(p => p.quantity === 0);
+
+            if (zeroStockItems.length > 0) {
+                zeroStockItems.forEach(p => {
+                    let li = document.createElement("li");
+                    li.textContent = p.name + " (" + p.category + ")";
+                    stockZeroList.appendChild(li);
+                });
+                stockReminder.style.display = "block";
+            } else {
+                stockReminder.style.display = "none";
+            }
+        }
+
         // Actualizar cantidad
         function updateQuantity(productId) {
-            const newQuantity = document.getElementById(`qty-${productId}`).value;
+            const addQuantity = document.getElementById(`qty-${productId}`).value;
 
-            fetch(`/inventory/update/${productId}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ quantity: parseInt(newQuantity) })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    alert("Cantidad actualizada correctamente.");
-                    loadInventory();
-                } else {
-                    alert("Error al actualizar cantidad.");
-                }
-            })
-            .catch(error => {
-                console.error("Error al actualizar:", error);
-            });
-        }
+        fetch(`/inventory/update/${productId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ add_quantity: parseInt(addQuantity) })  // 👈 cambio aquí
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert("Cantidad actualizada correctamente.");
+                loadInventory();
+            } else {
+                alert("Error al actualizar cantidad.");
+            }
+        })
+        .catch(error => {
+            console.error("Error al actualizar:", error);
+        });
+    }
+
 
         // Eliminar producto
         function deleteProduct(productId) {
@@ -117,5 +211,8 @@
     </script>
 </body>
 </html>
+
+
+
 
 
