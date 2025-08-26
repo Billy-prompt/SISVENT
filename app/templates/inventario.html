@@ -6,7 +6,69 @@
     <title>Gestión de Inventario</title>
     <link rel="stylesheet" href="/static/css/styles_inventario.css">
     <style>
-        /* Estilo para la vista flotante */
+    /* --- 🔹 Ajustes de tabla para pantallas pequeñas --- */
+    @media screen and (max-width: 768px) {
+        table.styled-table thead {
+            display: none; /* Oculta encabezados en móviles */
+        }
+
+        table.styled-table,
+        table.styled-table tbody,
+        table.styled-table tr,
+        table.styled-table td {
+            display: block;
+            width: 100%;
+        }
+
+        table.styled-table tr {
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 10px;
+            background: #fff;
+            box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
+        }
+
+        table.styled-table td {
+            text-align: left;
+            padding: 8px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        table.styled-table td::before {
+            content: attr(data-label);
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Botones más cómodos */
+        .btn-accion, 
+        .btn-eliminar {
+            width: 100%;
+            margin-top: 5px;
+            font-size: 14px;
+            padding: 8px;
+        }
+
+        .input-small {
+            width: 100%;
+            margin-top: 5px;
+            padding: 6px;
+            font-size: 14px;
+        }
+
+        /* Controles de paginación centrados y grandes */
+        #paginationControls button {
+            margin: 5px;
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+    }
+
+     /* Estilo para la vista flotante */
         #stockReminder {
             position: fixed;
             bottom: 20px;
@@ -30,7 +92,7 @@
         #stockReminder ul {
             padding-left: 20px;
         }
-    </style>
+</style>
 </head>
 <body>
     <div class="container">
@@ -64,6 +126,7 @@
 
     <!-- Vista flotante de recordatorio -->
     <div id="stockReminder">
+        <button id="closeReminder">✖</button>
         <h3>⚠ Productos con stock 0</h3>
         <ul id="stockZeroList"></ul>
     </div>
@@ -73,6 +136,7 @@
         const paginationControls = document.getElementById("paginationControls");
         const stockReminder = document.getElementById("stockReminder");
         const stockZeroList = document.getElementById("stockZeroList");
+        const closeReminderBtn = document.getElementById("closeReminder");
 
         let allProducts = [];
         let currentPage = 1;
@@ -83,34 +147,27 @@
             fetch("/inventory/list")
                 .then(res => res.json())
                 .then(data => {
-                    // Orden alfabético
                     allProducts = data.sort((a, b) => a.name.localeCompare(b.name));
-
-                    // Mostrar tabla y recordatorio
                     renderTable();
                     showStockZeroReminder();
                 })
-                .catch(error => {
-                    console.error("Error al cargar inventario:", error);
-                });
+                .catch(error => console.error("Error al cargar inventario:", error));
         }
 
-        // Renderizar tabla con paginación
+        // Renderizar tabla
         function renderTable() {
             inventoryTableBody.innerHTML = "";
-
             let start = (currentPage - 1) * itemsPerPage;
             let end = start + itemsPerPage;
             let pageItems = allProducts.slice(start, end);
 
             pageItems.forEach(item => {
                 const row = document.createElement("tr");
-
                 row.innerHTML = `
-                    <td>${item.name}</td>
-                    <td>${item.category}</td>
-                    <td>${item.quantity}</td>
-                    <td>
+                    <td data-label="Producto">${item.name}</td>
+                    <td data-label="Categoría">${item.category}</td>
+                    <td data-label="Cantidad">${item.quantity}</td>
+                    <td data-label="Modificar Cantidad">
                         <input type="number" min="0" value="" id="qty-${item.id}" class="input-small">
                         <button class="btn-accion" onclick="updateQuantity(${item.id})">Actualizar</button>
                     </td>
@@ -118,35 +175,41 @@
                         <button class="btn-eliminar" onclick="deleteProduct(${item.id})">🗑</button>
                     </td>
                 `;
-
                 inventoryTableBody.appendChild(row);
             });
-
             renderPaginationControls();
         }
 
-        // Mostrar controles de paginación
         function renderPaginationControls() {
-            let totalPages = Math.ceil(allProducts.length / itemsPerPage);
-            paginationControls.innerHTML = "";
+        let totalPages = Math.ceil(allProducts.length / itemsPerPage);
+        paginationControls.innerHTML = "";
 
-            for (let i = 1; i <= totalPages; i++) {
-                let btn = document.createElement("button");
-                btn.innerText = i;
-                btn.className = i === currentPage ? "active-page" : "";
-                btn.onclick = () => {
-                    currentPage = i;
-                    renderTable();
+        // Botón Anterior
+        if (currentPage > 1) {
+            let prevBtn = document.createElement("button");
+            prevBtn.innerText = "Anterior";
+            prevBtn.onclick = () => { 
+                currentPage--; 
+                renderTable(); 
+            };
+            paginationControls.appendChild(prevBtn);
+        }
+
+        // Botón Siguiente
+            if (currentPage < totalPages) {
+             let nextBtn = document.createElement("button");
+                nextBtn.innerText = "Siguiente";
+                nextBtn.onclick = () => { 
+                    currentPage++; 
+                    renderTable(); 
                 };
-                paginationControls.appendChild(btn);
+                paginationControls.appendChild(nextBtn);
             }
         }
 
-        // Mostrar productos con stock 0 en recordatorio flotante
         function showStockZeroReminder() {
             stockZeroList.innerHTML = "";
             const zeroStockItems = allProducts.filter(p => p.quantity === 0);
-
             if (zeroStockItems.length > 0) {
                 zeroStockItems.forEach(p => {
                     let li = document.createElement("li");
@@ -159,39 +222,28 @@
             }
         }
 
-        // Actualizar cantidad
         function updateQuantity(productId) {
             const addQuantity = document.getElementById(`qty-${productId}`).value;
-
-        fetch(`/inventory/update/${productId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ add_quantity: parseInt(addQuantity) })  // 👈 cambio aquí
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                alert("Cantidad actualizada correctamente.");
-                loadInventory();
-            } else {
-                alert("Error al actualizar cantidad.");
-            }
-        })
-        .catch(error => {
-            console.error("Error al actualizar:", error);
-        });
-    }
-
-
-        // Eliminar producto
-        function deleteProduct(productId) {
-            if (!confirm("¿Seguro que quieres eliminar este producto del inventario?")) {
-                return;
-            }
-
-            fetch(`/inventory/delete/${productId}`, {
-                method: "DELETE"
+            fetch(`/inventory/update/${productId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ add_quantity: parseInt(addQuantity) })
             })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Cantidad actualizada correctamente.");
+                    loadInventory();
+                } else {
+                    alert("Error al actualizar cantidad.");
+                }
+            })
+            .catch(error => console.error("Error al actualizar:", error));
+        }
+
+        function deleteProduct(productId) {
+            if (!confirm("¿Seguro que quieres eliminar este producto del inventario?")) return;
+            fetch(`/inventory/delete/${productId}`, { method: "DELETE" })
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
@@ -201,16 +253,20 @@
                     alert("Error al eliminar producto.");
                 }
             })
-            .catch(error => {
-                console.error("Error al eliminar producto:", error);
-            });
+            .catch(error => console.error("Error al eliminar producto:", error));
         }
 
-        // Iniciar carga
+        // 🔹 Cerrar ventana flotante
+        closeReminderBtn.addEventListener("click", () => {
+            stockReminder.style.display = "none";
+        });
+
         window.addEventListener("DOMContentLoaded", loadInventory);
     </script>
 </body>
 </html>
+
+
 
 
 

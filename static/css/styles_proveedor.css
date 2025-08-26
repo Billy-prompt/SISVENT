@@ -89,7 +89,7 @@ select:focus {
 
 /* Botones generales */
 button, .btn-volver-home {
-    padding: 14px 28px;
+    padding: 14px 2px;
     font-size: 1.05rem;
     font-weight: bold;
     letter-spacing: 0.5px;
@@ -160,5 +160,69 @@ button:hover, .btn-primary:hover {
     select {
         font-size: 1rem;
         padding: 12px;
+    }
+}
+
+/* ========================= */
+/*   ESTILOS RESPONSIVOS     */
+/* ========================= */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    .container {
+        width: 100%;
+        padding: 15px;
+        box-sizing: border-box;
+    }
+
+    h1, h2, h3, h4 {
+        font-size: 1.2rem;
+        text-align: center;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    label {
+        font-size: 0.95rem;
+    }
+
+    input, select, button, a.btn-volver-home {
+        width: 100% !important;
+        padding: 10px;
+        font-size: 1rem;
+        box-sizing: border-box;
+    }
+
+    button, a.btn-volver-home {
+        text-align: center;
+    }
+
+    .file-list {
+        padding-left: 15px;
+    }
+
+    .file-list li {
+        word-break: break-word;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1rem;
+    }
+
+    h2, h3, h4 {
+        font-size: 0.95rem;
+    }
+
+    input, button, a.btn-volver-home {
+        font-size: 0.9rem;
+        padding: 8px;
     }
 }
