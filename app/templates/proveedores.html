@@ -167,7 +167,8 @@
             originalName.value = displaySupplierName.textContent;
             editSupplierForm.style.display = 'block';
         });
-
+        
+        // Manejar el envío del formulario de modificación
         modifyForm.addEventListener('submit', function (event) {
             event.preventDefault();
 
@@ -240,6 +241,7 @@
                 return;
             }
 
+            // Enviar la factura al servidor
             fetch(`/ingresos/supplier/upload/${encodeURIComponent(supplierName)}`, {
                 method: 'POST',
                 body: formData

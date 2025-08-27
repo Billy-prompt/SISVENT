@@ -161,3 +161,89 @@ button:hover, .btn-primary:hover {
         padding: 12px;
     }
 }
+/* --- 🔹 Ajustes de tabla para pantallas pequeñas --- */
+    @media screen and (max-width: 768px) {
+        table.styled-table thead {
+            display: none; /* Oculta encabezados en móviles */
+        }
+
+        table.styled-table,
+        table.styled-table tbody,
+        table.styled-table tr,
+        table.styled-table td {
+            display: block;
+            width: 100%;
+        }
+
+        table.styled-table tr {
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 10px;
+            background: #fff;
+            box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
+        }
+
+        table.styled-table td {
+            text-align: left;
+            padding: 8px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        table.styled-table td::before {
+            content: attr(data-label);
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Botones más cómodos */
+        .btn-accion, 
+        .btn-eliminar {
+            width: 100%;
+            margin-top: 5px;
+            font-size: 14px;
+            padding: 8px;
+        }
+
+        .input-small {
+            width: 100%;
+            margin-top: 5px;
+            padding: 6px;
+            font-size: 14px;
+        }
+
+        /* Controles de paginación centrados y grandes */
+        #paginationControls button {
+            margin: 5px;
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+    }
+
+     /* Estilo para la vista flotante */
+        #stockReminder {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 300px;
+            max-height: 300px;
+            overflow-y: auto;
+            background: #fff3cd;
+            border: 2px solid #ff9800;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 1000;
+        }
+        #stockReminder h3 {
+            margin-top: 0;
+            color: #d35400;
+            font-size: 16px;
+        }
+        #stockReminder ul {
+            padding-left: 20px;
+        }

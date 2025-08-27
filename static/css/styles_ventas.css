@@ -238,3 +238,67 @@ button[type="reset"]:hover {
     }
 }
 
+/* ========================= */
+/*   ESTILOS RESPONSIVOS     */
+/* ========================= */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    form {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    fieldset {
+        border: 1px solid #ccc;
+        padding: 10px;
+    }
+
+    label {
+        display: block;
+        margin-top: 8px;
+        font-size: 0.95rem;
+    }
+
+    input, select, button, a.btn, table {
+        width: 100% !important;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    button, a.btn {
+        display: block;
+        margin-top: 10px;
+        text-align: center;
+    }
+
+    /* Tabla desplazable en pantallas pequeñas */
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    table th, table td {
+        padding: 6px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.2rem;
+        text-align: center;
+    }
+
+    legend {
+        font-size: 1rem;
+    }
+
+    input, button, a.btn {
+        font-size: 0.9rem;
+        padding: 8px;
+    }
+}

@@ -90,6 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const tablaDetalle = document.querySelector("#tabla-detalle tbody");
     const totalGeneralInput = document.getElementById("total_general");
 
+    // Actualizar precio y total al cambiar producto o cantidad
     function actualizarPrecioYTotal() {
         const selectedOption = document.querySelector(`#listaProductos option[value="${productoInput.value}"]`);
         if (!selectedOption) return;
@@ -99,9 +100,11 @@ document.addEventListener("DOMContentLoaded", () => {
         totalInput.value = (precio * cantidad).toFixed(2);
     }
 
+    // Escuchar cambios en producto y cantidad
     productoInput.addEventListener("change", actualizarPrecioYTotal);
     cantidadInput.addEventListener("input", actualizarPrecioYTotal);
 
+    // Agregar producto a la tabla
     agregarBtn.addEventListener("click", () => {
         const selectedOption = document.querySelector(`#listaProductos option[value="${productoInput.value}"]`);
         if (!selectedOption) {
@@ -124,6 +127,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
+        // Verificar si el producto ya está en la tabla
         const fila = document.createElement("tr");
         fila.innerHTML = `
             <td>${nombreProducto} <input type="hidden" name="products" value="${idProducto}"></td>
@@ -133,14 +137,17 @@ document.addEventListener("DOMContentLoaded", () => {
             <td><button type="button" class="eliminar-item"><i class="fas fa-trash-alt"></i> Eliminar</button></td>
         `;
 
+        // Eliminar producto de la tabla
         fila.querySelector(".eliminar-item").addEventListener("click", () => {
             totalGeneralInput.value = (parseFloat(totalGeneralInput.value || 0) - subtotal).toFixed(2);
             fila.remove();
         });
 
+        // Añadir fila a la tabla
         tablaDetalle.appendChild(fila);
         totalGeneralInput.value = (parseFloat(totalGeneralInput.value || 0) + subtotal).toFixed(2);
-
+        
+        // Limpiar campos para el siguiente producto
         cantidadInput.value = "1";
         precioInput.value = "";
         totalInput.value = "";

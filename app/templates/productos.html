@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- 🔹 clave para móviles -->
     <title>Ingreso de Productos al Stock</title>
     <link rel="stylesheet" href="/static/css/styles_productos.css">
 </head>
@@ -69,6 +70,7 @@
 </div>
 
 <script>
+// Lista de categorías disponibles
 let categorias = [];
 
 // Cargar categorías desde el backend
@@ -82,6 +84,7 @@ function cargarCategoriasEnSelect(selectElement) {
     });
 }
 
+// Obtener categorías del servidor
 function obtenerCategorias() {
     fetch("/categorias")
         .then(response => response.json())
@@ -91,6 +94,7 @@ function obtenerCategorias() {
         });
 }
 
+// Añadir nuevo producto
 function agregarProducto() {
     const container = document.getElementById('productos-container');
     const nuevoProducto = container.firstElementChild.cloneNode(true);
@@ -154,6 +158,7 @@ function actualizarTotalesProducto(productoItem) {
     actualizarResumenGeneral();
 }
 
+// Escuchar cambios en precios y cantidades
 document.addEventListener("input", function (e) {
     if (e.target.classList.contains("precio-compra") || e.target.name === "cantidades") {
         const productoItem = e.target.closest(".producto-item");
