@@ -210,7 +210,8 @@ def registrar_ingreso(
             shopping_price=precio_compra,
             sale_price=precio_venta_unitario,
             id_shopping=nuevo_ingreso.id_shopping,
-            id_category=categoria.id_category
+            id_category=categoria.id_category,
+            id_supplier=proveedor.id_supplier
         )
         db.add(producto)
         db.commit()

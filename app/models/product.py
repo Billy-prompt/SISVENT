@@ -11,6 +11,7 @@ class   Product(Base):
     sale_price = Column(Float)
     stock = Column(Integer)
     id_category = Column(Integer, ForeignKey('category.id_category'))
+    id_supplier = Column(Integer, ForeignKey('supplier.id_supplier'))
     
     
     id_shopping = Column(Integer, ForeignKey("shopping.id_shopping"))
@@ -22,6 +23,7 @@ class   Product(Base):
     details = relationship("SaleDetail", back_populates="product")
     shoppingDetail = relationship("ShoppingDetail", back_populates="product")
     category = relationship("Category", back_populates="products")
+    supplier = relationship("Supplier", back_populates="products")
     
 
 

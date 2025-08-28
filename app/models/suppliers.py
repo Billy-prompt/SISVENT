@@ -10,5 +10,6 @@ class Supplier(Base):
     telephone = Column(String(20))
 
     shopping = relationship("Shopping", back_populates="supplier")
+    products = relationship("Product", back_populates="supplier")
     
  
