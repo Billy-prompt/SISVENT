@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reportes de Ventas</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/styles_reportes.css"> <!-- Tu hoja de estilos personalizada -->
+</head>
+<body class="bg-light">
+
+<div class="container py-5">
+    <h2 class="mb-4 text-center">📊 Reportes de Ventas</h2>
+
+    <!-- Formulario -->
+    <form method="get" action="/reportes" class="card p-4 shadow-sm mb-4">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-4">
+                <label for="tipo_reporte" class="form-label">Tipo de reporte</label>
+                <select name="tipo_reporte" id="tipo_reporte" class="form-select" required>
+                    <option value="">-- Seleccione --</option>
+                    <option value="dia">Ventas del día</option>
+                    <option value="mes">Ventas del mes</option>
+                    <option value="mas_vendido">Producto más vendido</option>
+                    <option value="menos_vendido">Producto menos vendido</option>
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label for="fecha" class="form-label">Fecha (solo día o mes) obligatorio.</label>
+                <input type="date" name="fecha" id="fecha" class="form-control">
+            </div>
+
+            <div class="col-md-4 text-center">
+                <button type="submit" class="btn btn-primary w-100 mt-4">Generar reporte</button>
+            </div>
+        </div>
+    </form>
+    <div class="mb-4 text-center">
+        <a href="/home" class="btn btn-secondary">Home 🏠</a>
+    </div>
+
+    <!-- Resultado del reporte -->
+    <div class="card-body">
+    {% if reporte.contenido %}
+        <p class="fs-5">{{ reporte.contenido }}</p>
+    {% endif %}
+
+    {% if reporte.detalles %}
+        <table class="table table-striped table-bordered mt-3">
+            <thead class="table-primary">
+                <tr>
+                    <th>Fecha</th>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Valor</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in reporte.detalles %}
+                <tr>
+                    <td>{{ d.fecha }}</td>
+                    <td>{{ d.producto }}</td>
+                    <td>{{ d.cantidad }}</td>
+                    <td>${{ "{:,.0f}".format(d.valor) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    {% if reporte.productos %}
+        <table class="table table-striped table-bordered mt-3">
+            <thead class="table-primary">
+                <tr>
+                    <th>Producto</th>
+                    <th>Vendidos</th>
+                    <th>Stock actual</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in reporte.productos %}
+                <tr>
+                    <td>{{ p.product }}</td>
+                    <td>{{ p.cantidad }}</td>
+                    <td>{{ p.stock }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>
