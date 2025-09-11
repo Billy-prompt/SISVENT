@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, Form, APIRouter, Depends
+from fastapi import FastAPI, Request, Form, APIRouter, Depends, Form, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -7,13 +7,24 @@ from sqlalchemy.orm import Session
 from .models.product import Product
 from .models.sale import Sale
 from .models.saledetail import SaleDetail
+from . import models
+from .models.user import RoleEnum
 from app.routes import user, product, category, sale, shopping, suppliers, ingresos, inventario, proveedor, reportes
 from .routes.suppliers import router as suppliers_router
-from .config.db import Base, engine, get_db
+from .config.db import Base, engine, get_db, SessionLocal
 from fastapi.middleware.cors import CORSMiddleware
 from urllib.parse import unquote
 import os
+from app import utils, models
 
+# Import User model and get_current_user dependency
+from app.models.user import User
+from app.models.dependencies import get_current_user
+from app.utils import hash_password
+from starlette.middleware.sessions import SessionMiddleware
+
+
+# nuevo_usuario.password = hash_password("12345")  
 app = FastAPI()
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -23,9 +34,38 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 app.mount("/supplier/files", StaticFiles(directory="app/uploaded_files"), name="supplier_files")
 
 # Configuración de la ruta para la página de inicio
-@app.get("/home", response_class=HTMLResponse)
-async def home(request: Request):
-    return templates.TemplateResponse("home.html", {"request": request, "current_year": datetime.now().year, "title": "Home Page"})
+from fastapi import Request, Depends
+from fastapi.responses import RedirectResponse
+
+@app.get("/home")
+def home(request: Request, db: Session = Depends(get_db)):
+    # Verificar que haya sesión activa
+    user_id = request.session.get("user_id")
+    role = request.session.get("role")
+
+    if not user_id:
+        # Si no hay sesión, redirige al login
+        return RedirectResponse("/", status_code=303)
+
+    # Recuperar el usuario de la base de datos
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        # Si el usuario ya no existe, limpiar sesión y volver al login
+        request.session.clear()
+        return RedirectResponse("/", status_code=303)
+
+    # Pasar datos al template
+    return templates.TemplateResponse(
+        "home.html",
+        {
+            "request": request,
+            "user": user,  # tendrás disponible user.username
+            "role": role,  # aquí ya llega como string: "admin" o "vendedor"
+            "current_year": datetime.now().year,
+            "title": "Home Page"
+        }
+    )
+
 
 # Configuración de la ruta para la página de ventas
 @app.get("/ventas", response_class=HTMLResponse)
@@ -45,17 +85,62 @@ async def get_productos(request: Request):
 async def login_get(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
 
-@app.post("/", response_class=HTMLResponse)
-async def login_post(request: Request, username: str = Form(...), password: str = Form(...)):
-    if username == "admin" and password == "1234":
-        print("Inicio de sesión exitoso")
-        return RedirectResponse(url="/home", status_code=303)
-    else:
-        print("Inicio de sesión fallido")
-        return templates.TemplateResponse("login.html", {
+@app.post("/")
+def login(
+    request: Request,
+    username: str = Form(...),
+    password: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    user = db.query(User).filter(User.username == username).first()
+    if not user or not utils.verify_password(password, user.password):
+        return {"error": "Usuario o contraseña incorrectos"}
+
+    # Guardar en la sesión como string
+    request.session["user_id"] = user.id
+    request.session["role"] = user.role.value
+
+    # Redirigir al home
+    return RedirectResponse("/home", status_code=303)
+
+db = SessionLocal()
+usuarios = db.query(models.User).all()
+
+for u in usuarios:
+    # Si la contraseña aún no está en formato hash
+    if not u.password.startswith("$2b$"):  
+        u.password = utils.hash_password(u.password)
+
+db.commit()
+db.close()
+
+# Clave secreta para firmar las cookies de sesión
+# (usa algo largo y aleatorio en producción)
+app.add_middleware(SessionMiddleware, secret_key="supersecretkey")
+
+# request.session["user_id"] = user.id   # Guardar en sesión
+# user_id = request.session.get("user_id")  # Recuperar de sesión
+
+
+@app.get("/home")
+def admin_dashboard(current_user: User = Depends(get_current_user)):
+    if current_user.role != RoleEnum.admin:
+        raise HTTPException(status_code=403, detail="Acceso denegado")
+    return {"msg": "Bienvenido al panel de administrador"}
+
+
+@app.get("/home", response_class=HTMLResponse)
+def dashboard(request: Request, current_user: User = Depends(get_current_user)):
+    return templates.TemplateResponse(
+        "dashboard.html",
+        {
             "request": request,
-            "error": "Credenciales incorrectas"
-        })
+            "user": current_user,
+            "role": current_user.role,
+            "current_year": datetime.now().year
+        }
+    )
+
 
 @app.post("/ventas/registrar/formulario")
 def crear_venta_formulario(
@@ -141,6 +226,7 @@ app.include_router(suppliers_router)
 app.include_router(inventario.router)
 app.include_router(proveedor.router)
 app.include_router(reportes.router)
+
 
 import uvicorn
 

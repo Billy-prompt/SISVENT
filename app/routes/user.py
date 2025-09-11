@@ -4,9 +4,17 @@ from app.models.user import User
 from app.schemas.user import UserOut, UserCreate
 from app.config.db import get_db
 from typing import List
+from fastapi import APIRouter, Request, Form, Depends
+from fastapi.responses import RedirectResponse
+from fastapi.templating import Jinja2Templates
+from sqlalchemy.orm import Session
+from app.config.db import get_db
+from app import models, utils
+
+templates = Jinja2Templates(directory="app/templates")
 
 
-router = APIRouter(prefix='/user', tags=["Users"])
+router = APIRouter()
 
 
 @router.get("/", response_model=List[UserOut])
@@ -27,3 +35,31 @@ def create_user(user_data: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(user)
     return user
+
+@router.get("/usuarios")
+def listar_usuarios(request: Request, db: Session = Depends(get_db)):
+    usuarios = db.query(models.User).all()
+    return templates.TemplateResponse("usuarios.html", {"request": request, "usuarios": usuarios})
+
+@router.post("/usuarios/crear")
+def crear_usuario(
+    request: Request,
+    username: str = Form(...),
+    password: str = Form(...),
+    role: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    hashed_password = utils.hash_password(password)
+    nuevo_usuario = models.User(username=username, password=hashed_password, role=models.RoleEnum(role))
+    db.add(nuevo_usuario)
+    db.commit()
+    db.refresh(nuevo_usuario)
+    return RedirectResponse(url="/usuarios", status_code=303)
+
+@router.post("/usuarios/eliminar/{user_id}")
+def eliminar_usuario(user_id: int, db: Session = Depends(get_db)):
+    usuario = db.query(models.User).filter(models.User.id == user_id).first()
+    if usuario:
+        db.delete(usuario)
+        db.commit()
+    return RedirectResponse(url="/usuarios", status_code=303)
