@@ -9,17 +9,29 @@
 <body class="bg-light">
 
 <div class="container mt-5">
+    <!-- Título principal del formulario -->
     <h2 class="mb-4">Registrar Ingreso de Productos al Stock</h2>
 
+    <!-- Formulario principal que envía datos al backend -->
+    <!-- action="/registrar" -> se enviará al endpoint /registrar -->
+    <!-- method="POST" -> se envían los datos como POST -->
     <form id="formulario-productos" action="/registrar" method="POST">
+
+        <!-- Campo: Fecha de Ingreso -->
+        <!-- "readonly" evita que el usuario modifique la fecha (se asigna automáticamente) -->
         <div class="mb-3">
             <label for="fecha_ingreso" class="form-label">Fecha de Ingreso</label>
             <input type="date" class="form-control" id="fecha_ingreso" name="fecha_ingreso" required readonly>
         </div>
+
+        <!-- Campo: Selección de Proveedor -->
+        <!-- Desplegable con todos los proveedores disponibles -->
         <div class="mb-3">
             <label for="proveedor_select" class="form-label">Proveedor</label>
             <select class="form-select" id="proveedor_select" name="proveedor_nombre" required>
+                <!-- Primera opción por defecto deshabilitada -->
                 <option value="" selected disabled>Seleccione un proveedor</option>
+                <!-- Se rellena dinámicamente con proveedores desde el backend -->
                 {% for proveedor in proveedores %}
                     <option value="{{ proveedor.supplier_name }}">{{ proveedor.supplier_name }}</option>
                 {% endfor %}
@@ -29,42 +41,66 @@
         <hr>
         <h5>Productos</h5>
 
+        <!-- Contenedor donde se almacenan los productos -->
+        <!-- Se pueden añadir más con la función JS agregarProducto() -->
         <div id="productos-container">
+
+            <!-- Primer producto cargado por defecto -->
             <div class="row mb-3 producto-item">
+                <!-- Nombre del producto -->
                 <div class="col-md-4">
                     <label class="form-label">Nombre del Producto</label>
                     <input type="text" name="productos" class="form-control" placeholder="Ej: Arroz" required>
                 </div>
+
+                <!-- Cantidad de unidades -->
                 <div class="col-md-2">
                     <label class="form-label">Cantidad</label>
                     <input type="number" name="cantidades" class="form-control" min="1" required>
                 </div>
+
+                <!-- Precio de compra del producto -->
                 <div class="col-md-2">
                     <label class="form-label">Precio Compra</label>
                     <input type="number" name="precios" class="form-control precio-compra" step="0.01" min="0" required>
                 </div>
+
+                <!-- Precio de venta del producto -->
                 <div class="col-md-2">
                     <label class="form-label">Precio Venta</label>
                     <input type="number" name="precio_venta" class="form-control" step="0.01" min="0" required>
                 </div>
+
+                <!-- Categoría del producto -->
                 <div class="col-md-2">
                     <label class="form-label">Categoría</label>
+                    <!-- Select con categorías existentes -->
                     <select class="form-select categoria-select">
                         <option value="" disabled selected>Seleccione categoría</option>
                         {% for categoria in categorias %}
                             <option value="{{ categoria.category }}">{{ categoria.category }}</option>
                         {% endfor %}
                     </select>
+                    <!-- Input opcional para ingresar una nueva categoría -->
                     <input type="text" class="form-control mt-1 nueva-categoria" placeholder="Agregar nueva categoría">
                 </div>
             </div>
         </div>
 
+        <!-- Botón que añade dinámicamente un nuevo bloque de producto -->
+        <!-- onclick="agregarProducto()" -> llama a la función JS para duplicar el producto -->
         <button type="button" class="btn btn-secondary mb-3" onclick="agregarProducto()">+ Añadir otro producto</button>
+        
         <br>
         <hr>
+
+        <!-- Botón principal: envía el formulario al backend -->
         <button type="submit" class="btn btn-primary">Registrar Ingreso</button>
+        
+        <!-- Botón secundario: redirige a la página de inicio -->
         <a href="/home" class="btn btn-outline-secondary">Home 🏠</a>
+        
+        <!-- Botón adicional: redirige a la gestión de inventario -->
         <a href="/inventario" class="btn btn-primary">Gestión de Inventario</a>
     </form>
 </div>

@@ -16,11 +16,13 @@ templates = Jinja2Templates(directory="app/templates")
 
 router = APIRouter()
 
+# Listar usuarios
 
 @router.get("/", response_model=List[UserOut])
 def get_users(db: Session = Depends(get_db)):
     return db.query(User).all()
 
+# Crear usuario
 
 @router.post("/", response_model=UserOut)
 def create_user(user_data: UserCreate, db: Session = Depends(get_db)):
@@ -36,10 +38,14 @@ def create_user(user_data: UserCreate, db: Session = Depends(get_db)):
     db.refresh(user)
     return user
 
+# Rutas para manejar usuarios desde una interfaz web
+
 @router.get("/usuarios")
 def listar_usuarios(request: Request, db: Session = Depends(get_db)):
     usuarios = db.query(models.User).all()
     return templates.TemplateResponse("usuarios.html", {"request": request, "usuarios": usuarios})
+
+# Crear usuario desde formulario web
 
 @router.post("/usuarios/crear")
 def crear_usuario(
@@ -55,6 +61,8 @@ def crear_usuario(
     db.commit()
     db.refresh(nuevo_usuario)
     return RedirectResponse(url="/usuarios", status_code=303)
+
+# Eliminar usuario desde formulario web
 
 @router.post("/usuarios/eliminar/{user_id}")
 def eliminar_usuario(user_id: int, db: Session = Depends(get_db)):

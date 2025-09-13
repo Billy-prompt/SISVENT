@@ -11,40 +11,51 @@
 
 <h1>Registro de Nueva Venta</h1>
 
+<!-- Formulario principal -->
 <form action="/ventas/registrar/formulario" method="POST">
     <fieldset>
         <legend>Detalles de la Venta</legend>
 
+        <!-- Campo: Producto con autocompletado -->
         <label for="products">Producto:</label>
         <input type="text" id="products" class="form-control" placeholder="Escriba para buscar..." list="listaProductos">
         <datalist id="listaProductos">
-        {% for product in products %}
-            <option value="{{ product.product }}" 
-                data-id="{{ product.id_product }}"
-                data-precio="{{ product.sale_price }}" 
-                data-stock="{{ product.stock }}">
-                {{ product.product }} - ${{ product.sale_price }} 
-                {% if product.stock == 0 %}(Sin stock){% endif %}
-            </option>
-        {% endfor %}
+            <!-- Opciones cargadas dinámicamente desde el backend -->
+            {% for product in products %}
+                <option value="{{ product.product }}" 
+                    data-id="{{ product.id_product }}"
+                    data-precio="{{ product.sale_price }}" 
+                    data-stock="{{ product.stock }}">
+                    {{ product.product }} - ${{ product.sale_price }} 
+                    {% if product.stock == 0 %}(Sin stock){% endif %}
+                </option>
+            {% endfor %}
         </datalist>
 
+        <!-- Campo: Cantidad del producto -->
         <label for="quantity">Cantidad:</label>
         <input type="number" id="quantity" name="cantidad" class="form-control" min="1" value="1" required>
 
+        <!-- Campo: Precio unitario (se rellena automático) -->
         <label for="price">Precio Unitario:</label>
         <input type="number" id="price" name="precio" class="form-control" step="0.01" readonly>
 
+        <!-- Campo: Total del producto (cantidad x precio) -->
         <label for="total">Total:</label>
         <input type="number" id="total" name="total" class="form-control" step="0.01" readonly>
 
+        <!-- Campo: Fecha de la venta (relleno automático con la fecha actual) -->
         <label for="fecha">Fecha de Venta:</label>
         <input type="date" id="fecha" name="fecha" class="form-control" required readonly>
         <br></br>
+
+        <!-- Botón para añadir el producto seleccionado a la tabla -->
         <button type="button" id="agregar-item" class="btn btn-secondary mt-3">Agregar Producto</button>
         
+        <!-- Botón de regreso al home -->
         <a href="/home" class="btn btn-secondary mt-3">Home 🏠</a>
 
+        <!-- Tabla donde se mostrarán los productos agregados -->
         <table border="1" id="tabla-detalle" style="margin-top: 15px;">
             <thead>
                 <tr>
@@ -58,11 +69,14 @@
             <tbody></tbody>
         </table>
 
+        <!-- Campo: Total general de la venta -->
         <label for="total_general">Total General:</label>
         <input type="number" id="total_general" name="total_general" class="form-control" step="0.01" readonly>
     </fieldset>
 
+    <!-- Botón para enviar la venta al backend -->
     <button type="submit" class="btn btn-primary">Registrar Venta</button>
+    <!-- Botón para limpiar todos los campos -->
     <button type="reset" class="btn btn-danger">Limpiar Formulario</button>
 </form>
 

@@ -10,12 +10,6 @@ from typing import List
 
 router = APIRouter(prefix='/shopping', tags=['shopping'])
 
-# Llamar compras
-
-# @router.get('/', response_model=List[ShoppingOut])
-# def get_shoppings(db:Session = Depends(get_db)):
-#     return db.query(Shopping).all()
-
 # Crear compra
 
 @router.post('/', response_model=ShoppingOut)

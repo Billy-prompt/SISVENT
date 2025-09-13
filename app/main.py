@@ -121,14 +121,14 @@ app.add_middleware(SessionMiddleware, secret_key="supersecretkey")
 # request.session["user_id"] = user.id   # Guardar en sesión
 # user_id = request.session.get("user_id")  # Recuperar de sesión
 
-
+# dashboard admin
 @app.get("/home")
 def admin_dashboard(current_user: User = Depends(get_current_user)):
     if current_user.role != RoleEnum.admin:
         raise HTTPException(status_code=403, detail="Acceso denegado")
     return {"msg": "Bienvenido al panel de administrador"}
 
-
+# Dashboard con datos del usuario
 @app.get("/home", response_class=HTMLResponse)
 def dashboard(request: Request, current_user: User = Depends(get_current_user)):
     return templates.TemplateResponse(
@@ -141,7 +141,7 @@ def dashboard(request: Request, current_user: User = Depends(get_current_user)):
         }
     )
 
-
+# modulo ventas - crear venta desde formulario web
 @app.post("/ventas/registrar/formulario")
 def crear_venta_formulario(
     fecha: str = Form(...),
@@ -229,7 +229,7 @@ app.include_router(reportes.router)
 
 
 import uvicorn
-
+# Ejecutar la aplicación
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run("app.main:app", host="0.0.0.0", port=port)

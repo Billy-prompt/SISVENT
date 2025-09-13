@@ -21,14 +21,8 @@ app = FastAPI()
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")  # Ajusta si tu ruta real es diferente
 app.mount("/supplier/files", StaticFiles(directory="app/uploaded_files"), name="supplier_files")
-# router = APIRouter(prefix="/ingresos")
 
-# =========================
 # Obtener lista de proveedores
-# =========================
-# @router.get('/', response_model=List[SupplierOut])
-# def get_suppliers(db: Session = Depends(get_db)):
-#     return db.query(Supplier).all()
 
 @router.get("/supplier/search")
 def buscar_proveedor(name: str, db: Session = Depends(get_db)):
@@ -101,9 +95,8 @@ async def crear_supplier(
 
     return RedirectResponse(url="/category/proveedores", status_code=303)
 
-# =========================
 # Actualizar proveedor
-# =========================
+
 @router.put('/{supplier_id}', response_model=SupplierOut)
 def update_supplier(supplier_id: int, supplier_data: SupplierCreate, db: Session = Depends(get_db)):
     supplier = db.query(Supplier).filter(Supplier.id_supplier == supplier_id).first()
@@ -132,9 +125,8 @@ def actualizar_proveedor(data: dict, db: Session = Depends(get_db)):
     db.commit()
     return {"success": True}
 
-# =========================
 # Eliminar proveedor
-# =========================
+
 @router.delete('/{supplier_id}', status_code=status.HTTP_204_NO_CONTENT)
 def delete_supplier(supplier_id: int, db: Session = Depends(get_db)):
     supplier = db.query(Supplier).filter(Supplier.id_supplier == supplier_id).first()
@@ -145,9 +137,9 @@ def delete_supplier(supplier_id: int, db: Session = Depends(get_db)):
     db.commit()
     return None
 
-# =========================
+
 # Mostrar formulario ingreso
-# =========================
+
 @router.get("/formulario")
 def mostrar_formulario_ingreso(request: Request, db: Session = Depends(get_db)):
     proveedores = db.query(Supplier).all()
@@ -163,9 +155,9 @@ def obtener_categorias(db: Session = Depends(get_db)):
     categorias = db.query(Category).all()
     return [cat.category for cat in categorias]
 
-# =========================
+
 # Registrar ingreso POST
-# =========================
+
 @router.post("/registrar")
 def registrar_ingreso(
     fecha_ingreso: str = Form(...),
@@ -230,8 +222,7 @@ def registrar_ingreso(
 
     return RedirectResponse(url="/formulario", status_code=303)
 
-# =========================
-
+# Subir factura PDF
 
 @router.post("/ingresos/supplier/upload/{supplier_name}")
 def subir_factura(supplier_name: str, factura: UploadFile = File(...), db: Session = Depends(get_db)):
@@ -250,10 +241,12 @@ def subir_factura(supplier_name: str, factura: UploadFile = File(...), db: Sessi
         raise HTTPException(status_code=404, detail="Proveedor no encontrado.")
 
     # Crear carpeta del proveedor si no existe
+
     proveedor_folder = os.path.join(UPLOAD_FOLDER, supplier_name)
     os.makedirs(proveedor_folder, exist_ok=True)
 
     # Guardar archivo dentro de la carpeta del proveedor
+
     safe_filename = f"{factura.filename}"  # puedes agregar timestamp si deseas
     filepath = os.path.join(proveedor_folder, safe_filename)
 

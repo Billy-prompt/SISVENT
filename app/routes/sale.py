@@ -10,12 +10,6 @@ from typing import List
 
 router = APIRouter(prefix='/sale', tags=['sale'])
 
-# Llamar ventas
-
-# @router.get('/', response_model=List[SaleOut])
-# def get_sales(db:Session = Depends(get_db)):
-#     return db.query(Sale).all()
-
 # Llamar venta por ID
 
 @router.get('/{id_sale}', response_model=SaleFull)
