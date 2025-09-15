@@ -74,28 +74,28 @@ select.form-select:focus {
 }
 
 /* Botón para añadir producto */
-.btn-secondary {
+.btn-home {
     background-color: var(--secondary-color);
     border: none;
     color: var(--text-color-light);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.btn-secondary:hover {
+.btn-home:hover {
     background-color: var(--primary-color);
     color: var(--text-color-light);
     transform: translateY(-1px);
 }
 
 /* Botón registrar */
-.btn-primary {
+.btn-register {
     background-color: var(--accent-color);
     border: none;
     color: var(--text-color-light);
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
 }
 
-.btn-primary:hover {
+.btn-register:hover {
     background-color: var(--primary-color);
     color: var(--text-color-light);
     transform: translateY(-1px);
@@ -142,5 +142,47 @@ select.form-select:focus {
 
 a {
     text-decoration: none;
+}
+
+/* Botón Home */
+.btn-home {
+    background-color: var(--secondary-color);
+    border: none;
+    color: var(--text-color-light);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn-home:hover {
+    background-color: var(--primary-color);
+    color: var(--text-color-light);
+    transform: translateY(-1px);
+}
+
+/* Botón registrar */
+.btn-register {
+    background-color: var(--accent-color);
+    border: none;
+    color: var(--text-color-light);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+
+.btn-register:hover {
+    background-color: var(--primary-color);
+    color: var(--text-color-light);
+    transform: translateY(-1px);
+}
+
+/* Botón Inventario */
+.btn-inventary {
+    background-color: var(--primary-color);
+    border: none;
+    color: var(--text-color-light);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn-inventary:hover {
+    background-color: var(--secondary-color);
+    color: var(--text-color-light);
+    transform: translateY(-1px);
 }
 
