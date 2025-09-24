@@ -19,7 +19,6 @@
         <label for="products">Producto:</label>
         <input type="text" id="products" class="form-control" placeholder="Escriba para buscar..." list="listaProductos">
         <datalist id="listaProductos">
-            <!-- Opciones cargadas dinámicamente desde el backend -->
             {% for product in products %}
                 <option value="{{ product.product }}" 
                     data-id="{{ product.id_product }}"
@@ -31,30 +30,30 @@
             {% endfor %}
         </datalist>
 
-        <!-- Campo: Cantidad del producto -->
+        <!-- Campo: Cantidad -->
         <label for="quantity">Cantidad:</label>
         <input type="number" id="quantity" name="cantidad" class="form-control" min="1" value="1" required>
 
-        <!-- Campo: Precio unitario (se rellena automático) -->
-        <label for="price">Precio Unitario:</label>
-        <input type="number" id="price" name="precio" class="form-control" step="0.01" readonly>
+        <!-- Precio unitario -->
+        <label for="price_display">Precio Unitario:</label>
+        <input type="text" id="price_display" class="form-control" readonly>
+        <input type="hidden" id="price" name="precio">
 
-        <!-- Campo: Total del producto (cantidad x precio) -->
-        <label for="total">Total:</label>
-        <input type="number" id="total" name="total" class="form-control" step="0.01" readonly>
+        <!-- Total -->
+        <label for="total_display">Total:</label>
+        <input type="text" id="total_display" class="form-control" readonly>
+        <input type="hidden" id="total" name="total">
 
-        <!-- Campo: Fecha de la venta (relleno automático con la fecha actual) -->
+        <!-- Fecha -->
         <label for="fecha">Fecha de Venta:</label>
         <input type="date" id="fecha" name="fecha" class="form-control" required readonly>
-        <br></br>
+        <br><br>
 
-        <!-- Botón para añadir el producto seleccionado a la tabla -->
+        <!-- Botones -->
         <button type="button" id="agregar-item" class="btn btn-secondary mt-3">Agregar Producto</button>
-        
-        <!-- Botón de regreso al home -->
         <a href="/home" class="btn btn-secondary mt-3">Home 🏠</a>
 
-        <!-- Tabla donde se mostrarán los productos agregados -->
+        <!-- Tabla detalle -->
         <table border="1" id="tabla-detalle" style="margin-top: 15px;">
             <thead>
                 <tr>
@@ -68,26 +67,23 @@
             <tbody></tbody>
         </table>
 
-        <!-- Campo: Total general de la venta -->
-        <label for="total_general">Total General:</label>
-        <input type="number" id="total_general" name="total_general" class="form-control" step="0.01" readonly>
+        <!-- Total general -->
+        <label for="total_general_display">Total General:</label>
+        <input type="text" id="total_general_display" class="form-control" readonly>
+        <input type="hidden" id="total_general" name="total_general">
     </fieldset>
 
-    <!-- Botón para enviar la venta al backend -->
+    <!-- Botones finales -->
     <button type="submit" class="btn btn-primary">Registrar Venta</button>
-    <!-- Botón para limpiar todos los campos -->
     <button type="reset" class="btn btn-danger">Limpiar Formulario</button>
 </form>
 
-<!-- Validar que haya al menos un producto antes de enviar -->
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-    const formulario = document.querySelector("form");
-    formulario.addEventListener("submit", (event) => {
-        if (document.querySelectorAll("#tabla-detalle tbody tr").length === 0) {
-            alert("Debe agregar al menos un producto a la venta.");
-            event.preventDefault();
-        }
+    // Formateador de moneda
+    const formatoMoneda = new Intl.NumberFormat('es-CO', {
+        style: 'currency',
+        currency: 'COP'
     });
 
     // Fecha automática
@@ -95,25 +91,41 @@ document.addEventListener("DOMContentLoaded", () => {
     const hoy = new Date();
     fechaInput.value = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`;
 
+    // Inputs
     const productoInput = document.getElementById("products");
     const cantidadInput = document.getElementById("quantity");
-    const precioInput = document.getElementById("price");
-    const totalInput = document.getElementById("total");
+
+    const precioHidden = document.getElementById("price");
+    const precioDisplay = document.getElementById("price_display");
+
+    const totalHidden = document.getElementById("total");
+    const totalDisplay = document.getElementById("total_display");
+
+    const totalGeneralHidden = document.getElementById("total_general");
+    const totalGeneralDisplay = document.getElementById("total_general_display");
+
     const agregarBtn = document.getElementById("agregar-item");
     const tablaDetalle = document.querySelector("#tabla-detalle tbody");
-    const totalGeneralInput = document.getElementById("total_general");
 
-    // Actualizar precio y total al cambiar producto o cantidad
+    // Actualizar precio y total
     function actualizarPrecioYTotal() {
         const selectedOption = document.querySelector(`#listaProductos option[value="${productoInput.value}"]`);
         if (!selectedOption) return;
+
         const precio = parseFloat(selectedOption.dataset.precio || 0);
         const cantidad = parseInt(cantidadInput.value) || 0;
-        precioInput.value = precio.toFixed(2);
-        totalInput.value = (precio * cantidad).toFixed(2);
+        const subtotal = precio * cantidad;
+
+        // Hidden → backend
+        precioHidden.value = precio.toFixed(2);
+        totalHidden.value = subtotal.toFixed(2);
+
+        // Display → usuario
+        precioDisplay.value = formatoMoneda.format(precio);
+        totalDisplay.value = formatoMoneda.format(subtotal);
     }
 
-    // Escuchar cambios en producto y cantidad
+    // Eventos de cambio
     productoInput.addEventListener("change", actualizarPrecioYTotal);
     cantidadInput.addEventListener("input", actualizarPrecioYTotal);
 
@@ -124,9 +136,10 @@ document.addEventListener("DOMContentLoaded", () => {
             alert("Seleccione un producto válido.");
             return;
         }
+
         const nombreProducto = productoInput.value;
         const idProducto = selectedOption.dataset.id;
-        const precio = parseFloat(precioInput.value);
+        const precio = parseFloat(precioHidden.value);
         const cantidad = parseInt(cantidadInput.value);
         const stock = parseInt(selectedOption.dataset.stock || 0);
         const subtotal = precio * cantidad;
@@ -136,38 +149,53 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
         if (cantidad > stock) {
-            alert(`No hay suficiente stock para este producto. Stock disponible: ${stock}`);
+            alert(`No hay suficiente stock. Disponible: ${stock}`);
             return;
         }
 
-        // Verificar si el producto ya está en la tabla
+        // Crear fila
         const fila = document.createElement("tr");
         fila.innerHTML = `
             <td>${nombreProducto} <input type="hidden" name="products" value="${idProducto}"></td>
             <td>${cantidad} <input type="hidden" name="quantity" value="${cantidad}"></td>
-            <td>$${precio.toFixed(2)}</td>
-            <td>$${subtotal.toFixed(2)}</td>
+            <td>${formatoMoneda.format(precio)}</td>
+            <td>${formatoMoneda.format(subtotal)}</td>
             <td><button type="button" class="eliminar-item"><i class="fas fa-trash-alt"></i> Eliminar</button></td>
         `;
 
-        // Eliminar producto de la tabla
+        // Botón eliminar
         fila.querySelector(".eliminar-item").addEventListener("click", () => {
-            totalGeneralInput.value = (parseFloat(totalGeneralInput.value || 0) - subtotal).toFixed(2);
+            totalGeneralHidden.value = (parseFloat(totalGeneralHidden.value || 0) - subtotal).toFixed(2);
+            totalGeneralDisplay.value = formatoMoneda.format(totalGeneralHidden.value);
             fila.remove();
         });
 
-        // Añadir fila a la tabla
+        // Agregar fila a tabla
         tablaDetalle.appendChild(fila);
-        totalGeneralInput.value = (parseFloat(totalGeneralInput.value || 0) + subtotal).toFixed(2);
-        
-        // Limpiar campos para el siguiente producto
+
+        // Actualizar total general
+        totalGeneralHidden.value = (parseFloat(totalGeneralHidden.value || 0) + subtotal).toFixed(2);
+        totalGeneralDisplay.value = formatoMoneda.format(totalGeneralHidden.value);
+
+        // Reset inputs
         cantidadInput.value = "1";
-        precioInput.value = "";
-        totalInput.value = "";
         productoInput.value = "";
+        precioHidden.value = "";
+        totalHidden.value = "";
+        precioDisplay.value = "";
+        totalDisplay.value = "";
+    });
+
+    // Validación al enviar
+    const formulario = document.querySelector("form");
+    formulario.addEventListener("submit", (event) => {
+        if (document.querySelectorAll("#tabla-detalle tbody tr").length === 0) {
+            alert("Debe agregar al menos un producto.");
+            event.preventDefault();
+        }
     });
 });
 </script>
-
 </body>
 </html>
+

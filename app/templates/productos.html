@@ -64,13 +64,13 @@
                 <!-- Precio de compra del producto -->
                 <div class="col-md-2">
                     <label class="form-label">Precio Compra</label>
-                    <input type="number" name="precios" class="form-control precio-compra" step="0.01" min="0" required>
+                    <input type="text" name="precios" class="form-control precio-compra" required>
                 </div>
 
                 <!-- Precio de venta del producto -->
                 <div class="col-md-2">
                     <label class="form-label">Precio Venta</label>
-                    <input type="number" name="precio_venta" class="form-control" step="0.01" min="0" required>
+                    <input type="text" name="precio_venta" class="form-control" required>
                 </div>
 
                 <!-- Categoría del producto -->
@@ -106,12 +106,18 @@
         <a href="/inventario" class="btn btn-inventary">Gestión de Inventario</a>
     </form>
 </div>
-
 <script>
 // Lista de categorías disponibles
 let categorias = [];
 
-// Cargar categorías desde el backend
+// Formateador de moneda
+const formatoMoneda = new Intl.NumberFormat('es-CO', {
+    style: 'currency',
+    currency: 'COP',
+    minimumFractionDigits: 0
+});
+
+// Cargar categorías en <select>
 function cargarCategoriasEnSelect(selectElement) {
     selectElement.innerHTML = '<option value="" disabled selected>Seleccione categoría</option>';
     categorias.forEach(cat => {
@@ -137,6 +143,7 @@ function agregarProducto() {
     const container = document.getElementById('productos-container');
     const nuevoProducto = container.firstElementChild.cloneNode(true);
 
+    // limpiar valores
     nuevoProducto.querySelectorAll('input').forEach(input => input.value = '');
     const selectCategoria = nuevoProducto.querySelector('.categoria-select');
     const nuevaCategoriaInput = nuevoProducto.querySelector('.nueva-categoria');
@@ -147,8 +154,13 @@ function agregarProducto() {
     container.appendChild(nuevoProducto);
 }
 
-// Validación de categorías
+// Validación de categorías antes de enviar
 document.getElementById("formulario-productos").addEventListener("submit", function(e) {
+    // limpiar precios (quitar formato antes de enviar)
+    document.querySelectorAll(".precio-compra, [name='precio_venta']").forEach(input => {
+        input.value = limpiarNumero(input.value);
+    });
+
     document.querySelectorAll(".producto-item").forEach(item => {
         const select = item.querySelector(".categoria-select");
         const inputNueva = item.querySelector(".nueva-categoria");
@@ -184,38 +196,51 @@ document.addEventListener("DOMContentLoaded", () => {
     obtenerCategorias();
 });
 
-// Actualizar totales por producto
-function actualizarTotalesProducto(productoItem) {
-    const precioInput = productoItem.querySelector(".precio-compra");
-    const cantidadInput = productoItem.querySelector("[name='cantidades']");
-
-    let precio = parseFloat(precioInput.value) || 0;
-    let cantidad = parseInt(cantidadInput.value) || 0;
-    let total = precio * cantidad;
-
-    actualizarResumenGeneral();
+// 🔹 Quitar formato y devolver solo el número
+function limpiarNumero(valor) {
+    return valor.replace(/[^0-9]/g, ''); // deja solo números
 }
 
-// Escuchar cambios en precios y cantidades
-document.addEventListener("input", function (e) {
-    if (e.target.classList.contains("precio-compra") || e.target.name === "cantidades") {
-        const productoItem = e.target.closest(".producto-item");
-        actualizarTotalesProducto(productoItem);
-    }
+// Antes de enviar, limpiar valores a números enteros
+document.getElementById("formulario-productos").addEventListener("submit", function(e) {
+    document.querySelectorAll("input[name='precios'], input[name='precio_venta']").forEach(input => {
+        input.value = limpiarNumero(input.value); // "$2.500" → "2500"
+    });
 });
+
+// 🔹 Formatear a moneda dentro del input
+function formatearInput(input) {
+    const numero = parseFloat(limpiarNumero(input.value)) || 0;
+    input.value = formatoMoneda.format(numero);
+}
+
+// 🔹 Eventos para inputs de precios
+document.addEventListener("focus", function(e) {
+    if (e.target.classList.contains("precio-compra") || e.target.name === "precio_venta") {
+        e.target.value = limpiarNumero(e.target.value); // mostrar número limpio al editar
+    }
+}, true);
+
+document.addEventListener("blur", function(e) {
+    if (e.target.classList.contains("precio-compra") || e.target.name === "precio_venta") {
+        formatearInput(e.target); // mostrar moneda al salir del input
+        actualizarResumenGeneral();
+    }
+}, true);
 
 // Actualizar resumen general
 function actualizarResumenGeneral() {
     let totalNeto = 0;
 
     document.querySelectorAll(".producto-item").forEach(item => {
-        const precio = parseFloat(item.querySelector(".precio-compra").value) || 0;
+        const precio = parseFloat(limpiarNumero(item.querySelector(".precio-compra").value)) || 0;
         const cantidad = parseInt(item.querySelector("[name='cantidades']").value) || 0;
         totalNeto += precio * cantidad;
     });
 
-    document.getElementById("total-neto").textContent = totalNeto.toFixed(2);
-    document.getElementById("total-final").textContent = totalNeto.toFixed(2);
+    // 🔹 mostramos resumen en formato moneda
+    document.getElementById("total-neto").textContent = formatoMoneda.format(totalNeto);
+    document.getElementById("total-final").textContent = formatoMoneda.format(totalNeto);
 }
 </script>
 </body>
